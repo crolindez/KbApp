@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/KbApp.iml" filepath="$PROJECT_DIR$/KbApp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/btcomm/btcomm.iml" filepath="$PROJECT_DIR$/btcomm/btcomm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rfcomm/rfcomm.iml" filepath="$PROJECT_DIR$/rfcomm/rfcomm.iml" />
+    </modules>
+  </component>
+</project>

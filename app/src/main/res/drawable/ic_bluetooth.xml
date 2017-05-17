@@ -1,0 +1,29 @@
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:width="36dp"
+    android:height="54dp"
+    android:viewportHeight="98"
+    android:viewportWidth="64">
+
+
+    <group
+        android:name="bluetooth"
+        android:pivotX="32"
+        android:pivotY="56">
+        <path
+            android:name="bluetooth_ball"
+            android:fillColor="#0a3d91"
+            android:pathData="M 29.1,0 l 5.88,0 c 16.1214,0 29.1,12.9786 29.1,29.1 l 0,39.4
+            c 0,16.1214 -12.9286,29.1 -29.1,29.1 l -5.8,0 C 12.9786,97.6 0,84.6214 0,68.5
+            L 0,29.1 C 0,12.9786 12.9786,0 29.1,0 Z " />
+        <path
+            android:name="bluetooth_line"
+            android:strokeWidth="5"
+            android:strokeColor="#FFF"
+            android:pathData="M 15.7,33.0 l 30.5,30.7 l -14.7,17.8 l 0,-63.6 l 14.7,17.0 l -30.5,29.9" />
+
+
+    </group>
+</vector>
+
