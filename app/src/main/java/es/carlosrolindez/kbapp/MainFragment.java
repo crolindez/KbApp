@@ -11,8 +11,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import es.carlosrolindez.btcomm.BtDevice;
-
 /**
  * Created by Carlos on 16/05/2017.
  */
@@ -23,7 +21,7 @@ public class MainFragment extends Fragment {
 
     private static final String DEVICE_LIST = "device_list";
 
-    private ArrayBtDevice deviceList;
+    private ArrayKbDevice deviceList;
     private BtDeviceListAdapter deviceListAdapter = null;
     private ListView mListView = null;
     private BtConnectionInterface mBtInterface;
@@ -66,10 +64,10 @@ public class MainFragment extends Fragment {
         if (savedInstanceState != null) {
             deviceList = savedInstanceState.getParcelable(DEVICE_LIST);
             if (deviceList==null) {
-                deviceList = new ArrayBtDevice();
+                deviceList = new ArrayKbDevice();
             }
         } else {
-            deviceList = new ArrayBtDevice();
+            deviceList = new ArrayKbDevice();
         }
 
         mListView = (ListView)activity.findViewById(R.id.list);
@@ -80,7 +78,7 @@ public class MainFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 pbInterface.stopProgressBar();
-                BtDevice device = (BtDevice)parent.getItemAtPosition(position);
+                KbDevice device = (KbDevice)parent.getItemAtPosition(position);
                 mBtInterface.toggleBluetoothA2dp(device);
             }
         });
@@ -99,9 +97,9 @@ public class MainFragment extends Fragment {
         void stopProgressBar();
     }
 
-    public void addBtDevice(String name, BtDevice device) {
+    public void addBtDevice(String name, KbDevice device) {
 
-        for (BtDevice listDevice : deviceList)
+        for (KbDevice listDevice : deviceList)
             if (listDevice.getAddress().equals(device.getAddress())) {
                 listDevice.deviceName = name;
                 deviceListAdapter.notifyDataSetChanged();
@@ -113,7 +111,7 @@ public class MainFragment extends Fragment {
     }
 
     public void showInProgress(BluetoothDevice device) {
-        for (BtDevice listDevice : deviceList)
+        for (KbDevice listDevice : deviceList)
         {
             if (device.getAddress().equals(listDevice.getAddress())) {
                 listDevice.deviceConnected = false;
@@ -126,7 +124,7 @@ public class MainFragment extends Fragment {
     }
 
     public void hideInProcess(BluetoothDevice device) {
-        for (BtDevice listDevice : deviceList) {
+        for (KbDevice listDevice : deviceList) {
             if (device.getAddress().equals(listDevice.getAddress())) {
                 listDevice.setDeviceInProcess(false);
                 deviceListAdapter.notifyDataSetChanged();
@@ -137,7 +135,7 @@ public class MainFragment extends Fragment {
 
     public boolean showBonded(BluetoothDevice device) {
 
-        for (BtDevice listDevice : deviceList)
+        for (KbDevice listDevice : deviceList)
         {
             if (device.getAddress().equals(listDevice.getAddress())) {
                 listDevice.deviceBonded = true;
@@ -151,7 +149,7 @@ public class MainFragment extends Fragment {
     }
 
     public void showConnected(BluetoothDevice device) {
-        for (BtDevice listDevice : deviceList)
+        for (KbDevice listDevice : deviceList)
         {
             if (device.getAddress().equals(listDevice.getAddress())) {
                 listDevice.deviceConnected = true;
@@ -163,7 +161,7 @@ public class MainFragment extends Fragment {
     }
 
     public void showDisconnected(BluetoothDevice device) {
-        for (BtDevice listDevice : deviceList)
+        for (KbDevice listDevice : deviceList)
         {
             if (device.getAddress().equals(listDevice.getAddress())) {
                 listDevice.deviceConnected = false;
@@ -175,7 +173,7 @@ public class MainFragment extends Fragment {
     }
 
     public void hideConnection() {
-        for (BtDevice listDevice : deviceList)
+        for (KbDevice listDevice : deviceList)
             listDevice.deviceConnected = false;
 
         deviceListAdapter.notifyDataSetChanged();

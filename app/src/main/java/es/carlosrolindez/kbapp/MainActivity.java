@@ -11,7 +11,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import es.carlosrolindez.btcomm.BtDevice;
 import es.carlosrolindez.btcomm.BtListenerManager;
 import es.carlosrolindez.btcomm.bta2dpcomm.BtA2dpConnectionManager;
 
@@ -170,7 +169,8 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
     }
 
     public void addRfDevice(String name, BluetoothDevice device) {
-        BtDevice newDevice = new BtDevice(name,device);
+        KbDevice newDevice = new KbDevice(name,device);
+        if (newDevice.deviceType==KbDevice.OTHER) return;
 
         mainFragment.addBtDevice(name, newDevice);
     }
@@ -223,14 +223,14 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
     }
 
     @Override
-    public void forgetBluetoothA2dp(BtDevice device) {
+    public void forgetBluetoothA2dp(KbDevice device) {
         if (mBtA2dpConnectionManager!=null) {
             mBtA2dpConnectionManager.unbondBluetoothA2dp(device.mDevice);
         }
     }
 
     @Override
-    public void toggleBluetoothA2dp(BtDevice device) {
+    public void toggleBluetoothA2dp(KbDevice device) {
         if (mBtA2dpConnectionManager!=null)
             mBtA2dpConnectionManager.toggleBluetoothA2dp(device.mDevice);
     }

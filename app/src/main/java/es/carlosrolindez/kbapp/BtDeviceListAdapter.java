@@ -1,6 +1,7 @@
 package es.carlosrolindez.kbapp;
 // TODO Does not rotate well
 // TODO Save in Github
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
@@ -18,14 +19,12 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import es.carlosrolindez.btcomm.BtDevice;
-
 
 class BtDeviceListAdapter extends BaseAdapter {
 	private static String TAG = "BtDeviceListAdapter";
 
 	private final LayoutInflater inflater;
-	private final ArrayBtDevice mBtDeviceList;
+	private final ArrayKbDevice mKbDeviceList;
     private final Context mContext;
     private final BtConnectionInterface mBtInterface;
 
@@ -38,9 +37,9 @@ class BtDeviceListAdapter extends BaseAdapter {
     private final int mLongAnimationDuration;
 
 	
-	public BtDeviceListAdapter(Context context, ArrayBtDevice deviceList, BtConnectionInterface btInterface)
+	public BtDeviceListAdapter(Context context, ArrayKbDevice deviceList, BtConnectionInterface btInterface)
 	{
-		mBtDeviceList = deviceList;
+		mKbDeviceList = deviceList;
 		inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mContext = context;
         mBtInterface = btInterface;
@@ -51,19 +50,19 @@ class BtDeviceListAdapter extends BaseAdapter {
 	@Override
 	public int getCount()
 	{
-		if (mBtDeviceList == null)
+		if (mKbDeviceList == null)
 			return 0;
 		else
-			return mBtDeviceList.size();
+			return mKbDeviceList.size();
 	}
 	
 	@Override
 	public Object getItem(int position)
 	{
-		if (mBtDeviceList == null)
+		if (mKbDeviceList == null)
 			return 0;
 		else			
-			return mBtDeviceList.get(position);
+			return mKbDeviceList.get(position);
 	}
 	
 	@Override
@@ -76,10 +75,10 @@ class BtDeviceListAdapter extends BaseAdapter {
     @Override
 	public View getView(int position, View convertView, ViewGroup parent)
 	{
-	    if (mBtDeviceList == null)
+	    if (mKbDeviceList == null)
 	    	return null;
 
-		final BtDevice device =  mBtDeviceList.get(position);
+		final KbDevice device =  mKbDeviceList.get(position);
 	    
 		View localView = convertView;
 	
@@ -87,6 +86,8 @@ class BtDeviceListAdapter extends BaseAdapter {
 		{
 			localView = inflater.inflate(R.layout.device_list_row, parent, false);
 		}
+
+        ImageView imageDeviceType = (ImageView)localView.findViewById(R.id.device_type);
 
 		TextView deviceName = (TextView)localView.findViewById(R.id.device_name);
 		TextView deviceAddress = (TextView)localView.findViewById(R.id.device_address);
@@ -97,6 +98,27 @@ class BtDeviceListAdapter extends BaseAdapter {
 		deviceName.setText(device.deviceName);
 		deviceAddress.setText(device.getAddress());
 
+        switch (device.deviceType)
+        {
+            case KbDevice.IN_WALL_BT:
+                imageDeviceType.setVisibility(View.VISIBLE);
+                imageDeviceType.setImageResource(R.drawable.inwall_bt);
+                break;
+            case KbDevice.IN_WALL_WIFI:
+                imageDeviceType.setVisibility(View.VISIBLE);
+                imageDeviceType.setImageResource(R.drawable.inwall_wifi);
+                break;
+            case KbDevice.ISELECT:
+                imageDeviceType.setVisibility(View.VISIBLE);
+                imageDeviceType.setImageResource(R.drawable.iselect);
+                break;
+            case KbDevice.SELECTBT:
+                imageDeviceType.setVisibility(View.VISIBLE);
+                imageDeviceType.setImageResource(R.drawable.selectbt);
+                break;
+            default:
+                imageDeviceType.setVisibility(View.INVISIBLE);
+        }
 
         if (device.deviceConnected) {
             mainLayout.setBackgroundResource(R.drawable.connected_selector);
@@ -165,7 +187,7 @@ class BtDeviceListAdapter extends BaseAdapter {
                 });
     }
 
-    private void deleteAnimatedLayout(final RelativeLayout layout, final BtDevice btDevice) {
+    private void deleteAnimatedLayout(final RelativeLayout layout, final KbDevice btDevice) {
 
         if (layout==null) return;
 
@@ -181,7 +203,7 @@ class BtDeviceListAdapter extends BaseAdapter {
                 layout.setLayoutParams(params);
                 layout.setRight(right);
                 if (btDevice!=null)
-                    mBtDeviceList.remove(btDevice);
+                    mKbDeviceList.remove(btDevice);
                 notifyDataSetChanged();
             }
         });
@@ -199,8 +221,8 @@ class BtDeviceListAdapter extends BaseAdapter {
                         layout.setLayoutParams(params);
                         layout.setScaleX(1f);
                         layout.setScaleY(1f);
-                        if (btDevice!=null)
-                            mBtDeviceList.remove(btDevice);
+                        if (kbDevice!=null)
+                            mKbDeviceList.remove(kbDevice);
                         notifyDataSetChanged();
                     }
                 });*/
@@ -216,7 +238,7 @@ class BtDeviceListAdapter extends BaseAdapter {
         private final RelativeLayout mainLayout;
         private final RelativeLayout deleteLayout;
         private final ListView mListView;
-        private final BtDevice btDevice;
+        private final KbDevice kbDevice;
         private final int limitWidth;
         private final int localPosition;
         private final ImageView mDeleteButton;
@@ -225,13 +247,13 @@ class BtDeviceListAdapter extends BaseAdapter {
 
 
 
-        public SwipeView(RelativeLayout main, RelativeLayout delete, ListView list, BtDevice device, int position, ImageView deleteButton) {
+        public SwipeView(RelativeLayout main, RelativeLayout delete, ListView list, KbDevice device, int position, ImageView deleteButton) {
             ViewConfiguration vc = ViewConfiguration.get(mContext);
             mSlop = vc.getScaledTouchSlop();
             mainLayout = main;
             deleteLayout = delete;
             mListView = list;
-            btDevice = device;
+            kbDevice = device;
             localPosition = position;
             limitWidth = (int)mContext.getResources().getDimension(R.dimen.delete_button_size);
             mDeleteButton = deleteButton;
@@ -249,8 +271,8 @@ class BtDeviceListAdapter extends BaseAdapter {
             lockedButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mBtInterface.forgetBluetoothA2dp(btDevice);
-                    deleteAnimatedLayout(lockedLayout,btDevice);
+                    mBtInterface.forgetBluetoothA2dp(kbDevice);
+                    deleteAnimatedLayout(lockedLayout, kbDevice);
                     unlock();
 
                 }
@@ -329,7 +351,7 @@ class BtDeviceListAdapter extends BaseAdapter {
                     } else {
                         restoreAnimatedLayout(mainLayout);
                         unlock();
-                        mBtInterface.toggleBluetoothA2dp(btDevice);
+                        mBtInterface.toggleBluetoothA2dp(kbDevice);
                     }
 
                     return true;
