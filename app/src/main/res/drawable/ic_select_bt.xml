@@ -8,18 +8,19 @@
 
 
     <group
-        android:name="bluetooth"
+        android:name="select_bt"
         android:pivotX="32"
         android:pivotY="56">
         <path
-            android:name="bluetooth_ball"
+            android:name="select_ball"
             android:fillColor="#2661c1"
-            android:pathData="@string/bt_ball_vector_path"/>
+            android:pathData="@string/bt_ball_vector_path" />
+
         <path
-            android:name="bluetooth_line"
+            android:name="select_line"
             android:strokeWidth="5"
             android:strokeColor="#FFF"
-            android:pathData="@string/bt_logo_vector_path" />
+            android:pathData="@string/select_play_vector_path" />
     </group>
 </vector>
 

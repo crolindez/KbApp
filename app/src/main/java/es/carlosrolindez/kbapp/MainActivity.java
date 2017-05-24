@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -34,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
     private MenuItem mActionProgressItem;
 
     private MainFragment mainFragment;
-
+    private CommFragment mCommFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,16 +52,26 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
             finish();
         }
 
+        FragmentManager fm = getSupportFragmentManager();
 
         if (savedInstanceState == null) {
             mainFragment = MainFragment.newInstance();
-            getSupportFragmentManager()
-                    .beginTransaction()
+            fm.beginTransaction()
                     .add(R.id.root_layout, mainFragment, "mainFragment")
                     .commit();
         } else {
             mainFragment = (MainFragment) getSupportFragmentManager()
                     .findFragmentByTag("mainFragment");
+        }
+
+
+        mCommFragment = (CommFragment) fm.findFragmentByTag(CommFragment.TAG);
+
+        // If the Fragment is non-null, then it is currently being
+        // retained across a configuration change.
+        if (mCommFragment == null) {
+            mCommFragment = new CommFragment();
+            fm.beginTransaction().add(mCommFragment, CommFragment.TAG).commit();
         }
 
 
@@ -185,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
             case CONNECTED:
                 break;
             case DISCONNECTED:
-                mainFragment.hideInProcess(device);
+//                mainFragment.hideInProcess(device);
                 break;
 
 

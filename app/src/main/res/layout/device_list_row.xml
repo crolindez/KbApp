@@ -3,14 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
+	android:layout_height="64dp"
     android:background="#ffebeff1"
     android:orientation="horizontal" >
 
     <RelativeLayout
         android:id="@+id/password_list_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="64dp"
         android:background="@android:color/holo_green_light"
         android:descendantFocusability="blocksDescendants"
         android:orientation="horizontal"
@@ -35,7 +35,7 @@
     <RelativeLayout
         android:id="@+id/delete_list_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="64dp"
         android:background="@android:color/holo_orange_dark"
         android:descendantFocusability="blocksDescendants"
         android:orientation="horizontal"
@@ -60,7 +60,7 @@
     <RelativeLayout
         android:id="@+id/device_list_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="64dp"
         android:background="@drawable/notconnected_selector"
         android:descendantFocusability="blocksDescendants"
         android:orientation="horizontal"
@@ -104,12 +104,12 @@
 
         <ImageView
             android:id="@+id/bluetooth_icon"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:src="@drawable/ic_bluetooth"
-            android:visibility="invisible"/>
+            android:visibility="invisible" />
 
     </RelativeLayout>
 

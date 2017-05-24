@@ -1,6 +1,4 @@
 package es.carlosrolindez.kbapp;
-// TODO Does not rotate well
-// TODO Save in Github
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -8,6 +6,7 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimatedVectorDrawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -36,7 +35,7 @@ class BtDeviceListAdapter extends BaseAdapter {
     private final int mShortAnimationDuration;
     private final int mLongAnimationDuration;
 
-	
+
 	public BtDeviceListAdapter(Context context, ArrayKbDevice deviceList, BtConnectionInterface btInterface)
 	{
 		mKbDeviceList = deviceList;
@@ -79,7 +78,6 @@ class BtDeviceListAdapter extends BaseAdapter {
 	    	return null;
 
 		final KbDevice device =  mKbDeviceList.get(position);
-	    
 		View localView = convertView;
 	
 		if (localView==null)
@@ -92,7 +90,7 @@ class BtDeviceListAdapter extends BaseAdapter {
 		TextView deviceName = (TextView)localView.findViewById(R.id.device_name);
 		TextView deviceAddress = (TextView)localView.findViewById(R.id.device_address);
         ImageView bluetoothIcon = (ImageView) localView.findViewById(R.id.bluetooth_icon);
-        AnimatedVectorDrawable animatedBluetooth= (AnimatedVectorDrawable) mContext.getDrawable(R.drawable.animated_bluetooth);
+
 
 		RelativeLayout mainLayout = (RelativeLayout)localView.findViewById(R.id.device_list_layout);
 		deviceName.setText(device.deviceName);
@@ -120,27 +118,75 @@ class BtDeviceListAdapter extends BaseAdapter {
                 imageDeviceType.setVisibility(View.INVISIBLE);
         }
 
-        if (device.deviceConnected) {
-            mainLayout.setBackgroundResource(R.drawable.connected_selector);
+        if (device.deviceBonded) {
+            deviceName.setTypeface(Typeface.DEFAULT_BOLD);
+            deviceAddress.setTypeface(Typeface.DEFAULT_BOLD);
         } else {
-            mainLayout.setBackgroundResource(R.drawable.notconnected_selector);
-            if (device.deviceBonded) {
-                deviceName.setTypeface(Typeface.DEFAULT_BOLD);
-                deviceAddress.setTypeface(Typeface.DEFAULT_BOLD);
+            deviceName.setTypeface(Typeface.DEFAULT);
+            deviceAddress.setTypeface(Typeface.DEFAULT);
+        }
+
+
+
+        if (device.deviceConnected) {
+            if (device.getConnectionInProcessState()) {
+                bluetoothIcon.setVisibility(View.VISIBLE);
+                AnimatedVectorDrawable animationBluetooth= (AnimatedVectorDrawable) mContext.getDrawable(R.drawable.animated_bluetooth);
+                bluetoothIcon.setImageDrawable(animationBluetooth);
+                if (device.btVisualState== KbDevice.CONNECTED) {
+                    if (animationBluetooth!=null) animationBluetooth.start();
+                }
+                device.btVisualState = KbDevice.PROGRESSING_DOWN;
+
             } else {
-                deviceName.setTypeface(Typeface.DEFAULT);
-                deviceAddress.setTypeface(Typeface.DEFAULT);
+                bluetoothIcon.setVisibility(View.VISIBLE);
+                if (device.deviceType==KbDevice.SELECTBT) {
+                    Log.e(TAG,"animation");
+                    AnimatedVectorDrawable animationPlaySelect= (AnimatedVectorDrawable) mContext.getDrawable(R.drawable.animated_select);
+                    bluetoothIcon.setImageDrawable(animationPlaySelect);
+                    if (device.btVisualState== KbDevice.PROGRESSING_UP) {
+                        if (animationPlaySelect != null) animationPlaySelect.start();
+                    }
+                } else {
+                    bluetoothIcon.setImageResource(R.drawable.ic_bluetooth);
+                }
+                device.btVisualState = KbDevice.CONNECTED;
+            }
+        } else {
+            if (device.getConnectionInProcessState()) {
+                bluetoothIcon.setVisibility(View.VISIBLE);
+                AnimatedVectorDrawable animationBluetooth= (AnimatedVectorDrawable) mContext.getDrawable(R.drawable.animated_bluetooth);
+                bluetoothIcon.setImageDrawable(animationBluetooth);
+                if (device.btVisualState== KbDevice.WAITING) {
+                    if (animationBluetooth!=null) animationBluetooth.start();
+                }
+                device.btVisualState = KbDevice.PROGRESSING_UP;
+            } else {
+                bluetoothIcon.setVisibility(View.INVISIBLE);
+                bluetoothIcon.setImageResource(R.drawable.ic_bluetooth);
+                device.btVisualState = KbDevice.WAITING;
+
             }
         }
-        if (device.getDeviceInProcess()) {
-            bluetoothIcon.setVisibility(View.VISIBLE);
-            bluetoothIcon.setImageDrawable(animatedBluetooth);
-            animatedBluetooth.start();
+/*
+        ImageView iv = new ImageView(getApplicationContext());
+        iv.setImageDrawable(getDrawable(R.drawable.animal));
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams((int)mContext.getResources().getDimension(R.dimen.bt_button_size),
+                    (int)mContext.getResources().getDimension(R.dimen.bt_button_size));
+        lp.addRule(RelativeLayout.ALIGN_PARENT_END);
+        iv.setLayoutParams(lp);
+        rl.addView(iv);
+
+
+        private void addImage(RelativeLayout rl) {
+            ImageView btImage = new ImageView(mContext);
+            RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams((int) mContext.getResources().getDimension(R.dimen.bt_button_size),
+                    (int) mContext.getResources().getDimension(R.dimen.bt_button_size));
+            lp.addRule(RelativeLayout.ALIGN_PARENT_END);
+            lp.addRule(RelativeLayout.CENTER_VERTICAL);
+            rl.addView(iv);
         }
-        else {
-            bluetoothIcon.setVisibility(View.INVISIBLE);
-            animatedBluetooth.stop();
-        }
+*/
 
 
         ImageView deleteButton = (ImageView) localView.findViewById(R.id.device_delete);

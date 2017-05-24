@@ -12,21 +12,13 @@ public class BtDevice extends RfDevice<BluetoothDevice> implements Parcelable{
     private final static String TAG = "BtDevice";
 
     public boolean deviceBonded;
-    private boolean deviceInProcess;
+
 
     public BtDevice(String name, BluetoothDevice device) {
         super(name,device,0);
         deviceBonded = (device.getBondState()!=BOND_NONE);
-        deviceInProcess = false;
     }
 
-    public void setDeviceInProcess(boolean state) {
-        this.deviceInProcess = state;
-    }
-
-    public boolean getDeviceInProcess() {
-        return this.deviceInProcess;
-    }
 
     @Override
     public String getAddress() {

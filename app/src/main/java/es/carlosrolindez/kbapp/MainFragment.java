@@ -5,15 +5,12 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-
-/**
- * Created by Carlos on 16/05/2017.
- */
 
 public class MainFragment extends Fragment {
 
@@ -101,12 +98,15 @@ public class MainFragment extends Fragment {
 
         for (KbDevice listDevice : deviceList)
             if (listDevice.getAddress().equals(device.getAddress())) {
+                if (listDevice.deviceName.equals(device.deviceName)) return;
+                Log.e(TAG,"changed name");
                 listDevice.deviceName = name;
                 deviceListAdapter.notifyDataSetChanged();
                 return;
             }
 
         deviceList.addSorted(device);
+        Log.e(TAG,"new device");
         deviceListAdapter.notifyDataSetChanged();
     }
 
@@ -114,8 +114,8 @@ public class MainFragment extends Fragment {
         for (KbDevice listDevice : deviceList)
         {
             if (device.getAddress().equals(listDevice.getAddress())) {
-                listDevice.deviceConnected = false;
-                listDevice.setDeviceInProcess(true);
+                Log.e(TAG,listDevice.deviceName + " showInProgress");
+                listDevice.setConnectionInProcessState(true);
                 deviceListAdapter.notifyDataSetChanged();
                 return;
             }
@@ -126,7 +126,8 @@ public class MainFragment extends Fragment {
     public void hideInProcess(BluetoothDevice device) {
         for (KbDevice listDevice : deviceList) {
             if (device.getAddress().equals(listDevice.getAddress())) {
-                listDevice.setDeviceInProcess(false);
+                Log.e(TAG,listDevice.deviceName + " hideInProgress");
+                listDevice.setConnectionInProcessState(false);
                 deviceListAdapter.notifyDataSetChanged();
                 return;
             }
@@ -138,6 +139,7 @@ public class MainFragment extends Fragment {
         for (KbDevice listDevice : deviceList)
         {
             if (device.getAddress().equals(listDevice.getAddress())) {
+                Log.e(TAG,listDevice.deviceName + " showBonded");
                 listDevice.deviceBonded = true;
                 deviceListAdapter.notifyDataSetChanged();
                 return true;
@@ -152,8 +154,9 @@ public class MainFragment extends Fragment {
         for (KbDevice listDevice : deviceList)
         {
             if (device.getAddress().equals(listDevice.getAddress())) {
+                Log.e(TAG,listDevice.deviceName + " showConnected");
                 listDevice.deviceConnected = true;
-                listDevice.setDeviceInProcess(false);
+                listDevice.setConnectionInProcessState(false);
                 deviceListAdapter.notifyDataSetChanged();
                 return;
             }
@@ -164,8 +167,9 @@ public class MainFragment extends Fragment {
         for (KbDevice listDevice : deviceList)
         {
             if (device.getAddress().equals(listDevice.getAddress())) {
+                Log.e(TAG,listDevice.deviceName + " showDisconnected");
                 listDevice.deviceConnected = false;
-                listDevice.setDeviceInProcess(false);
+                listDevice.setConnectionInProcessState(false);
                 deviceListAdapter.notifyDataSetChanged();
                 return;
             }
@@ -173,6 +177,8 @@ public class MainFragment extends Fragment {
     }
 
     public void hideConnection() {
+        Log.e(TAG,"hideConnection");
+
         for (KbDevice listDevice : deviceList)
             listDevice.deviceConnected = false;
 

@@ -9,7 +9,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.util.Log;
 
 import java.util.List;
 
@@ -198,7 +197,6 @@ public class BtA2dpConnectionManager {
                 case BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED: {
 
                     int state = intent.getIntExtra(BluetoothA2dp.EXTRA_STATE, BluetoothA2dp.STATE_DISCONNECTED);
-                    Log.e(TAG,"A2dp Connection state changed " + state);
                     device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     switch (state) {
                         case BluetoothA2dp.STATE_CONNECTED:
@@ -222,7 +220,6 @@ public class BtA2dpConnectionManager {
                     break;
                 }
                 case BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED: {
-                    Log.e(TAG,"Headset Connection state changed");
                     int state = intent.getIntExtra(BluetoothHeadset.EXTRA_STATE, BluetoothHeadset.STATE_DISCONNECTED);
                     if (headsetProxy != null) {
                         device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
