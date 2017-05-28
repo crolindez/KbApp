@@ -3,9 +3,13 @@ package es.carlosrolindez.kbapp;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -14,6 +18,9 @@ import android.widget.Toast;
 
 import es.carlosrolindez.btcomm.BtListenerManager;
 import es.carlosrolindez.btcomm.bta2dpcomm.BtA2dpConnectionManager;
+import es.carlosrolindez.btcomm.btsppcomm.BtSppClientSocket;
+import es.carlosrolindez.btcomm.btsppcomm.BtSppCommManager;
+import es.carlosrolindez.rfcomm.RfCommManager;
 
 
 public class MainActivity extends AppCompatActivity implements BtListenerManager.RfListener<BluetoothDevice,BtListenerManager.BtEvent>,
@@ -35,7 +42,28 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
     private MenuItem mActionProgressItem;
 
     private MainFragment mainFragment;
-    private CommFragment mCommFragment;
+    private SelectBtFragment mSelectBtFragment;
+
+    private BtSppCommManager mBtSppCommManager = null;
+    private LocalBroadcastManager mLocalBroadcastManager;
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(RfCommManager.STARTED)) {
+                if (mBtSppCommManager.isSocketConnected()) {
+                    mainFragment.showSelectBtReady(mBtSppCommManager.getConnectedDevice());
+                }
+            } else if (intent.getAction().equals(RfCommManager.MESSAGE)) {
+                String readMessage = intent.getStringExtra(RfCommManager.message_content);
+                //TODO MESSAGE                    if (readMessage.equals("Ping")) mp.start();
+            } else if (intent.getAction().equals(RfCommManager.STOPPED)) {
+                if (mBtSppCommManager.isSocketConnected())
+                    mBtSppCommManager.closeSocket();
+            } else if (intent.getAction().equals(RfCommManager.CLOSED)) {
+            }
+        }
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,18 +93,20 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
         }
 
 
-        mCommFragment = (CommFragment) fm.findFragmentByTag(CommFragment.TAG);
+        mSelectBtFragment = (SelectBtFragment) fm.findFragmentByTag(SelectBtFragment.TAG);
 
         // If the Fragment is non-null, then it is currently being
         // retained across a configuration change.
-        if (mCommFragment == null) {
-            mCommFragment = new CommFragment();
-            fm.beginTransaction().add(mCommFragment, CommFragment.TAG).commit();
+        if (mSelectBtFragment == null) {
+            mSelectBtFragment = new SelectBtFragment();
+            fm.beginTransaction().add(mSelectBtFragment, SelectBtFragment.TAG).commit();
         }
 
 
         mBtA2dpConnectionManager = new BtA2dpConnectionManager(getApplication(),this);
 
+        mBtSppCommManager = new BtSppCommManager(getApplicationContext());
+        initializeBtSppListener();
 
         setProgressBar(ActivityState.NOT_SCANNING);
 
@@ -218,6 +248,9 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
         switch (event) {
             case CONNECTED:
                 mainFragment.showConnected(device);
+                if (KbDevice.getDeviceType(device.getAddress())==KbDevice.SELECTBT) {
+                    connectBtSpp(device);
+                }
                 break;
 
             case DISCONNECTED:
@@ -242,12 +275,45 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
     @Override
     public void toggleBluetoothA2dp(KbDevice device) {
-        if (mBtA2dpConnectionManager!=null)
+        if (mBtSppCommManager!=null) {
+            if (mBtSppCommManager.isSocketConnected()) {
+                mBtSppCommManager.stopSocket();
+                mainFragment.hideSelectBtReady();
+            }
+        }
+
+        if (mBtA2dpConnectionManager!=null) {
             mBtA2dpConnectionManager.toggleBluetoothA2dp(device.mDevice);
+        }
     }
 
     @Override
     public void stopProgressBar() {
         setProgressBar(ActivityState.CONNECTED);
+    }
+
+    private void connectBtSpp(BluetoothDevice device) {
+        new BtSppClientSocket(mBtSppCommManager,device).start();
+    }
+
+    private void initializeBtSppListener() {
+        mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
+
+        // We are going to watch for interesting local broadcasts.
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(RfCommManager.STARTED);
+        filter.addAction(RfCommManager.MESSAGE);
+        filter.addAction(RfCommManager.STOPPED);
+        filter.addAction(RfCommManager.CLOSED);
+
+        mLocalBroadcastManager.registerReceiver(mReceiver, filter);
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mLocalBroadcastManager!=null)
+            mLocalBroadcastManager.unregisterReceiver(mReceiver);
     }
 }

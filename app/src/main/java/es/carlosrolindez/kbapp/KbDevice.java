@@ -1,7 +1,6 @@
 package es.carlosrolindez.kbapp;
 
 import android.bluetooth.BluetoothDevice;
-import android.os.Parcel;
 
 import es.carlosrolindez.btcomm.BtDevice;
 
@@ -25,23 +24,24 @@ public class KbDevice extends BtDevice {
     private static final String inWallFootprint2 = "5C:0E:23";
     private static final String selectBtFootprint = "8C:DE:52";
     private static final String selectBtFootprint2 = "34:81:F4";
-    private static final String inWallWiFiFootprint = "12:05:12";
-    private static final String inWallWiFiFootprint2 = "11:07:16";
+    private static final String inWallWiFiFootprint = "12:19:4A";
 
-    protected static final int WAITING = 0;
-    protected static final int PROGRESSING_UP = 1;
-    protected static final int CONNECTED = 2;
-    protected static final int PROGRESSING_DOWN = 3;
+//    protected static final int WAITING = 0;
+//    protected static final int PROGRESSING_UP = 1;
+///    protected static final int CONNECTED = 2;
+//    protected static final int PROGRESSING_DOWN = 3;
 
     protected final int deviceType;
-    protected int btVisualState;
+//    protected int btVisualState;
     protected boolean connectionInProcess;
+    protected boolean sppConnected;
 
     public KbDevice(String name, BluetoothDevice device) {
         super(name,device);
         deviceType = getDeviceType(device.getAddress());
         connectionInProcess = false;
-        btVisualState = WAITING;
+        sppConnected = false;
+ //       btVisualState = WAITING;
 
     }
 
@@ -53,6 +53,14 @@ public class KbDevice extends BtDevice {
         return connectionInProcess;
     }
 
+    public void setSppConnectionState(boolean state) {
+
+        sppConnected = state;
+    }
+
+    public boolean getSppConnectionState() {
+        return sppConnected;
+    }
 
 
     public static int getDeviceType(String deviceMAC) {
@@ -63,8 +71,9 @@ public class KbDevice extends BtDevice {
         if (MAC.equals(selectBtFootprint)) return SELECTBT;
         if (MAC.equals(selectBtFootprint2)) return SELECTBT;
         if (MAC.equals(inWallWiFiFootprint)) return IN_WALL_WIFI;
-        if (MAC.equals(inWallWiFiFootprint2)) return IN_WALL_WIFI;
         return OTHER;
     }
+
+
 
 }

@@ -7,8 +7,8 @@ import android.support.v4.app.Fragment;
 import es.carlosrolindez.btcomm.btsppcomm.BtSppCommManager;
 
 
-public class CommFragment extends Fragment {
-    public final static String TAG = "CommFragment";
+public class SelectBtFragment extends Fragment {
+    public final static String TAG = "SelectBtFragment";
 
     private BtSppCommManager mBtSppCommManager = null;
 

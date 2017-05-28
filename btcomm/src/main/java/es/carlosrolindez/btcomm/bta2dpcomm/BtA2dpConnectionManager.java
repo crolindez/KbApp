@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.util.Log;
 
 import java.util.List;
 
@@ -54,20 +55,24 @@ public class BtA2dpConnectionManager {
     }
 
     public void toggleBluetoothA2dp(BluetoothDevice device) {
-        if (device.getBondState() != BluetoothDevice.BOND_BONDED)
+        if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
+            Log.e(TAG,"create Bond");
             device.createBond();
+        }
         else {
             if (a2dpProxy!=null) {
                 // First: disconnection if necessary
                 List<BluetoothDevice> a2dpConnectedDevices = a2dpProxy.getConnectedDevices();
                 if (a2dpConnectedDevices.size() != 0) {
                     for (BluetoothDevice localDevice : a2dpConnectedDevices) { // only one device can be connected
+                        Log.e(TAG,"disconnect " + localDevice.getName());
                         disconnectBluetoothA2dp(localDevice);
                         if (localDevice.getAddress().equals(device.getAddress()))
                             // current device was connected:  toggle means disconnect
                             return;
                     }
                 }
+                Log.e(TAG,"connect " + device.getName());
                 //second: A2dp connection to the new device
                 if (a2dpProxy != null) {
                     try {

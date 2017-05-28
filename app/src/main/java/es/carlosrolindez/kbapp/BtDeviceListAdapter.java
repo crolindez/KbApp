@@ -6,7 +6,6 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimatedVectorDrawable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -129,65 +128,51 @@ class BtDeviceListAdapter extends BaseAdapter {
 
 
         if (device.deviceConnected) {
-            if (device.getConnectionInProcessState()) {
+            if (device.getSppConnectionState()){
+                bluetoothIcon.setVisibility(View.VISIBLE);
+                AnimatedVectorDrawable animationPlaySelect= (AnimatedVectorDrawable) mContext.getDrawable(R.drawable.animated_select);
+                bluetoothIcon.setImageDrawable(animationPlaySelect);
+                if (animationPlaySelect != null) animationPlaySelect.start();
+
+            } else if (device.getConnectionInProcessState()) {
                 bluetoothIcon.setVisibility(View.VISIBLE);
                 AnimatedVectorDrawable animationBluetooth= (AnimatedVectorDrawable) mContext.getDrawable(R.drawable.animated_bluetooth);
                 bluetoothIcon.setImageDrawable(animationBluetooth);
-                if (device.btVisualState== KbDevice.CONNECTED) {
+ //               if (device.btVisualState== KbDevice.CONNECTED) {
                     if (animationBluetooth!=null) animationBluetooth.start();
-                }
-                device.btVisualState = KbDevice.PROGRESSING_DOWN;
+ //               }
+ //               device.btVisualState = KbDevice.PROGRESSING_DOWN;
 
             } else {
                 bluetoothIcon.setVisibility(View.VISIBLE);
-                if (device.deviceType==KbDevice.SELECTBT) {
+ /*               if (device.deviceType==KbDevice.SELECTBT) {
                     Log.e(TAG,"animation");
                     AnimatedVectorDrawable animationPlaySelect= (AnimatedVectorDrawable) mContext.getDrawable(R.drawable.animated_select);
                     bluetoothIcon.setImageDrawable(animationPlaySelect);
                     if (device.btVisualState== KbDevice.PROGRESSING_UP) {
                         if (animationPlaySelect != null) animationPlaySelect.start();
                     }
-                } else {
+                } else {*/
                     bluetoothIcon.setImageResource(R.drawable.ic_bluetooth);
-                }
-                device.btVisualState = KbDevice.CONNECTED;
+//                }
+ //               device.btVisualState = KbDevice.CONNECTED;
             }
         } else {
             if (device.getConnectionInProcessState()) {
                 bluetoothIcon.setVisibility(View.VISIBLE);
                 AnimatedVectorDrawable animationBluetooth= (AnimatedVectorDrawable) mContext.getDrawable(R.drawable.animated_bluetooth);
                 bluetoothIcon.setImageDrawable(animationBluetooth);
-                if (device.btVisualState== KbDevice.WAITING) {
+//                if (device.btVisualState== KbDevice.WAITING) {
                     if (animationBluetooth!=null) animationBluetooth.start();
-                }
-                device.btVisualState = KbDevice.PROGRESSING_UP;
+ //               }
+//                device.btVisualState = KbDevice.PROGRESSING_UP;
             } else {
                 bluetoothIcon.setVisibility(View.INVISIBLE);
                 bluetoothIcon.setImageResource(R.drawable.ic_bluetooth);
-                device.btVisualState = KbDevice.WAITING;
+ ///               device.btVisualState = KbDevice.WAITING;
 
             }
         }
-/*
-        ImageView iv = new ImageView(getApplicationContext());
-        iv.setImageDrawable(getDrawable(R.drawable.animal));
-        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams((int)mContext.getResources().getDimension(R.dimen.bt_button_size),
-                    (int)mContext.getResources().getDimension(R.dimen.bt_button_size));
-        lp.addRule(RelativeLayout.ALIGN_PARENT_END);
-        iv.setLayoutParams(lp);
-        rl.addView(iv);
-
-
-        private void addImage(RelativeLayout rl) {
-            ImageView btImage = new ImageView(mContext);
-            RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams((int) mContext.getResources().getDimension(R.dimen.bt_button_size),
-                    (int) mContext.getResources().getDimension(R.dimen.bt_button_size));
-            lp.addRule(RelativeLayout.ALIGN_PARENT_END);
-            lp.addRule(RelativeLayout.CENTER_VERTICAL);
-            rl.addView(iv);
-        }
-*/
-
 
         ImageView deleteButton = (ImageView) localView.findViewById(R.id.device_delete);
         RelativeLayout deleteLayout = (RelativeLayout)localView.findViewById(R.id.delete_list_layout);
@@ -455,6 +440,7 @@ class BtDeviceListAdapter extends BaseAdapter {
 		return pin;
 
 	}
+
 
 
 }
