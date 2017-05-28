@@ -7,4 +7,5 @@ package es.carlosrolindez.kbapp;
 public interface BtConnectionInterface {
     void forgetBluetoothA2dp(KbDevice device);
     void toggleBluetoothA2dp(KbDevice device);
+    void showKnownBluetoothA2dpDevices();
 }

@@ -25,6 +25,7 @@ class BtDeviceListAdapter extends BaseAdapter {
 	private final ArrayKbDevice mKbDeviceList;
     private final Context mContext;
     private final BtConnectionInterface mBtInterface;
+    private final SelectBtInterface mSelectBtInterface;
 
     private boolean viewLocked = false;
     private int numViewLocked = 0;
@@ -35,12 +36,13 @@ class BtDeviceListAdapter extends BaseAdapter {
     private final int mLongAnimationDuration;
 
 
-	public BtDeviceListAdapter(Context context, ArrayKbDevice deviceList, BtConnectionInterface btInterface)
+	public BtDeviceListAdapter(Context context, ArrayKbDevice deviceList, BtConnectionInterface btInterface, SelectBtInterface selectInterface)
 	{
 		mKbDeviceList = deviceList;
 		inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mContext = context;
         mBtInterface = btInterface;
+        mSelectBtInterface = selectInterface;
         mShortAnimationDuration = mContext.getResources().getInteger(android.R.integer.config_shortAnimTime);
         mLongAnimationDuration = mContext.getResources().getInteger(android.R.integer.config_longAnimTime);
 	}
@@ -132,10 +134,18 @@ class BtDeviceListAdapter extends BaseAdapter {
                 bluetoothIcon.setVisibility(View.VISIBLE);
                 AnimatedVectorDrawable animationPlaySelect= (AnimatedVectorDrawable) mContext.getDrawable(R.drawable.animated_select);
                 bluetoothIcon.setImageDrawable(animationPlaySelect);
+                bluetoothIcon.setClickable(true);
+                bluetoothIcon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mSelectBtInterface.enterSelectBtFragment();
+                    }
+                });
                 if (animationPlaySelect != null) animationPlaySelect.start();
 
             } else if (device.getConnectionInProcessState()) {
                 bluetoothIcon.setVisibility(View.VISIBLE);
+                bluetoothIcon.setClickable(false);
                 AnimatedVectorDrawable animationBluetooth= (AnimatedVectorDrawable) mContext.getDrawable(R.drawable.animated_bluetooth);
                 bluetoothIcon.setImageDrawable(animationBluetooth);
  //               if (device.btVisualState== KbDevice.CONNECTED) {
@@ -145,6 +155,7 @@ class BtDeviceListAdapter extends BaseAdapter {
 
             } else {
                 bluetoothIcon.setVisibility(View.VISIBLE);
+                bluetoothIcon.setClickable(false);
  /*               if (device.deviceType==KbDevice.SELECTBT) {
                     Log.e(TAG,"animation");
                     AnimatedVectorDrawable animationPlaySelect= (AnimatedVectorDrawable) mContext.getDrawable(R.drawable.animated_select);
@@ -160,6 +171,7 @@ class BtDeviceListAdapter extends BaseAdapter {
         } else {
             if (device.getConnectionInProcessState()) {
                 bluetoothIcon.setVisibility(View.VISIBLE);
+                bluetoothIcon.setClickable(false);
                 AnimatedVectorDrawable animationBluetooth= (AnimatedVectorDrawable) mContext.getDrawable(R.drawable.animated_bluetooth);
                 bluetoothIcon.setImageDrawable(animationBluetooth);
 //                if (device.btVisualState== KbDevice.WAITING) {
@@ -239,24 +251,6 @@ class BtDeviceListAdapter extends BaseAdapter {
             }
         });
         moveUp.start();
-
-  /*      layout.animate()
-                .scaleX(0f)
-                .scaleY(0f)
-                .setDuration(mLongAnimationDuration)
-                .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        params.rightMargin = 0;
-                        params.leftMargin = 0;
-                        layout.setLayoutParams(params);
-                        layout.setScaleX(1f);
-                        layout.setScaleY(1f);
-                        if (kbDevice!=null)
-                            mKbDeviceList.remove(kbDevice);
-                        notifyDataSetChanged();
-                    }
-                });*/
     }
 
 

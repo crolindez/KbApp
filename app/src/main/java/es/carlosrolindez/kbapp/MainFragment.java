@@ -22,6 +22,7 @@ public class MainFragment extends Fragment {
     private ListView mListView = null;
     private BtConnectionInterface mBtInterface;
     private ProgressBarInterface pbInterface;
+    private SelectBtInterface mSelectBtInterface;
 
     public static MainFragment newInstance() {
         MainFragment fragment = new MainFragment();
@@ -41,6 +42,12 @@ public class MainFragment extends Fragment {
             pbInterface = (MainFragment.ProgressBarInterface) context;
         } else {
             throw new ClassCastException(context.toString() + " must implement MainFragment.ProgressBarInterface.");
+        }
+
+        if (context instanceof SelectBtInterface) {
+            mSelectBtInterface = (SelectBtInterface) context;
+        } else {
+            throw new ClassCastException(context.toString() + " must implement SelectBtInterface.");
         }
     }
 
@@ -67,7 +74,7 @@ public class MainFragment extends Fragment {
         }
 
         mListView = (ListView)activity.findViewById(R.id.list);
-        deviceListAdapter = new BtDeviceListAdapter(activity, deviceList, mBtInterface );
+        deviceListAdapter = new BtDeviceListAdapter(activity, deviceList, mBtInterface, mSelectBtInterface );
         mListView.setAdapter(deviceListAdapter);
 
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -79,6 +86,12 @@ public class MainFragment extends Fragment {
             }
         });
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mBtInterface.showKnownBluetoothA2dpDevices();
     }
 
     @Override
@@ -129,19 +142,17 @@ public class MainFragment extends Fragment {
         }
     }
 
-    public boolean showBonded(BluetoothDevice device) {
+    public void showBonded(BluetoothDevice device) {
 
         for (KbDevice listDevice : deviceList)
         {
             if (device.getAddress().equals(listDevice.getAddress())) {
                 listDevice.deviceBonded = true;
                 deviceListAdapter.notifyDataSetChanged();
-                return true;
+                return;
 
             }
         }
-
-        return false;
     }
 
     public void showConnected(BluetoothDevice device) {

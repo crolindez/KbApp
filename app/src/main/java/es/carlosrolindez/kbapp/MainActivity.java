@@ -26,8 +26,13 @@ import es.carlosrolindez.rfcomm.RfCommManager;
 public class MainActivity extends AppCompatActivity implements BtListenerManager.RfListener<BluetoothDevice,BtListenerManager.BtEvent>,
                                                                 BtA2dpConnectionManager.BtA2dpProxyListener,
                                                                 BtConnectionInterface,
+                                                                SelectBtInterface,
                                                                 MainFragment.ProgressBarInterface {
     private static final String TAG = "MainActivity";
+
+    private static final String MAIN_FRAGMENT = "mainFragment";
+    private static final String SELECT_BT_FRAGMENT = "selectBtFragment";
+
 
     private static final int REQUEST_ENABLE_BT = 1;
 
@@ -82,30 +87,28 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
         FragmentManager fm = getSupportFragmentManager();
 
-        if (savedInstanceState == null) {
-            mainFragment = MainFragment.newInstance();
-            fm.beginTransaction()
-                    .add(R.id.root_layout, mainFragment, "mainFragment")
-                    .commit();
+        if (savedInstanceState!=null) {
+            mSelectBtFragment = (SelectBtFragment) fm.findFragmentByTag(SELECT_BT_FRAGMENT);
+            mainFragment = null;
+            if (mSelectBtFragment!=null) {
+                mBtSppCommManager = mSelectBtFragment.getBtSppCommManager();
+            } else {
+                mainFragment = (MainFragment) fm.findFragmentByTag(MAIN_FRAGMENT);
+                mBtSppCommManager = new BtSppCommManager(getApplicationContext());
+            }
+
         } else {
-            mainFragment = (MainFragment) getSupportFragmentManager()
-                    .findFragmentByTag("mainFragment");
+            mainFragment = MainFragment.newInstance();
+            mSelectBtFragment = null;
+            fm.beginTransaction()
+                    .add(R.id.root_layout, mainFragment, MAIN_FRAGMENT)
+                    .commit();
+            mBtSppCommManager = new BtSppCommManager(getApplicationContext());
         }
-
-
-        mSelectBtFragment = (SelectBtFragment) fm.findFragmentByTag(SelectBtFragment.TAG);
-
-        // If the Fragment is non-null, then it is currently being
-        // retained across a configuration change.
-        if (mSelectBtFragment == null) {
-            mSelectBtFragment = new SelectBtFragment();
-            fm.beginTransaction().add(mSelectBtFragment, SelectBtFragment.TAG).commit();
-        }
-
 
         mBtA2dpConnectionManager = new BtA2dpConnectionManager(getApplication(),this);
 
-        mBtSppCommManager = new BtSppCommManager(getApplicationContext());
+
         initializeBtSppListener();
 
         setProgressBar(ActivityState.NOT_SCANNING);
@@ -118,8 +121,6 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
             case REQUEST_ENABLE_BT:
                 // When the request to enable Bluetooth returns
                 if (resultCode != Activity.RESULT_OK) {
-  //                  startRfListening();
-    //            } else {
                     Toast.makeText(this, R.string.bt_not_enabled,Toast.LENGTH_SHORT).show();
                     finish();
                 }
@@ -143,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
         super.onPause();
         if  (mBtListenerManager!=null) mBtListenerManager.closeService();
 
-        mainFragment.hideConnection();
+        if (mainFragment!=null) mainFragment.hideConnection();
         if (mBluetoothAdapter!=null) mBluetoothAdapter.cancelDiscovery();
 
     }
@@ -210,10 +211,11 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
     }
 
     public void addRfDevice(String name, BluetoothDevice device) {
-        KbDevice newDevice = new KbDevice(name,device);
-        if (newDevice.deviceType==KbDevice.OTHER) return;
-
-        mainFragment.addBtDevice(name, newDevice);
+        if (mainFragment!=null) {
+            KbDevice newDevice = new KbDevice(name, device);
+            if (newDevice.deviceType == KbDevice.OTHER) return;
+            mainFragment.addBtDevice(name, newDevice);
+        }
     }
 
     public void notifyRfEvent(BluetoothDevice device,  BtListenerManager.BtEvent event) {
@@ -231,13 +233,13 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
 
             case BONDED:
-                if (mainFragment.showBonded(device))
-                    if (mBtA2dpConnectionManager != null)
-                        mBtA2dpConnectionManager.connectBluetoothA2dp(device);
+                if (mainFragment!=null)  mainFragment.showBonded(device);
+                if (mBtA2dpConnectionManager != null)
+                    mBtA2dpConnectionManager.connectBluetoothA2dp(device);
                 break;
 
             case CHANGING:
-                mainFragment.showInProgress(device);
+                if (mainFragment!=null) mainFragment.showInProgress(device);
                 break;
         }
     }
@@ -247,18 +249,21 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
         switch (event) {
             case CONNECTED:
-                mainFragment.showConnected(device);
+                if (mainFragment!=null) mainFragment.showConnected(device);
                 if (KbDevice.getDeviceType(device.getAddress())==KbDevice.SELECTBT) {
-                    connectBtSpp(device);
+                    if (!mBtSppCommManager.isSocketConnected()) {
+                        connectBtSpp(device);
+                    } else
+                        if (mainFragment!=null) mainFragment.showSelectBtReady(device);
                 }
                 break;
 
             case DISCONNECTED:
-                mainFragment.showDisconnected(device);
+                if (mainFragment!=null) mainFragment.showDisconnected(device);
                 break;
 
             case CHANGING:
-                mainFragment.showInProgress(device);
+                if (mainFragment!=null) mainFragment.showInProgress(device);
                 break;
 
         }
@@ -278,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
         if (mBtSppCommManager!=null) {
             if (mBtSppCommManager.isSocketConnected()) {
                 mBtSppCommManager.stopSocket();
-                mainFragment.hideSelectBtReady();
+                if (mainFragment!=null) mainFragment.hideSelectBtReady();
             }
         }
 
@@ -286,6 +291,16 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
             mBtA2dpConnectionManager.toggleBluetoothA2dp(device.mDevice);
         }
     }
+
+    @Override
+    public void showKnownBluetoothA2dpDevices(){
+        if (mBtListenerManager != null) mBtListenerManager.knownBtDevices();
+        if (mBtA2dpConnectionManager!=null) {
+            mBtA2dpConnectionManager.refreshBluetoothA2dp();
+        }
+
+    }
+
 
     @Override
     public void stopProgressBar() {
@@ -316,4 +331,30 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
         if (mLocalBroadcastManager!=null)
             mLocalBroadcastManager.unregisterReceiver(mReceiver);
     }
+
+    @Override
+    public void enterSelectBtFragment() {
+        if (mBtSppCommManager!=null) {
+            mSelectBtFragment = SelectBtFragment.newInstance(mBtSppCommManager);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.root_layout, mSelectBtFragment, SELECT_BT_FRAGMENT)
+                    .addToBackStack(null)
+                    .commit();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        FragmentManager fm = getSupportFragmentManager();
+        int count = fm.getBackStackEntryCount();
+
+        if (count == 0) {
+            super.onBackPressed();
+        } else {
+            fm.popBackStack();
+            mainFragment = (MainFragment) fm.findFragmentByTag(MAIN_FRAGMENT);
+        }
+
+    }
+
 }

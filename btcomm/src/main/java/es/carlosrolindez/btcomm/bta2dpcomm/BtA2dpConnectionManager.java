@@ -9,7 +9,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.util.Log;
 
 import java.util.List;
 
@@ -51,12 +50,29 @@ public class BtA2dpConnectionManager {
             BluetoothAdapter.getDefaultAdapter().closeProfileProxy(BluetoothProfile.A2DP, a2dpProxy);
         }
         a2dpProxy = null;
+
+        if (headsetProxy!=null) {
+            BluetoothAdapter.getDefaultAdapter().closeProfileProxy(BluetoothProfile.HEADSET, headsetProxy);
+        }
+        headsetProxy = null;
         mContext.unregisterReceiver(mReceiver);
+    }
+
+    public void refreshBluetoothA2dp() {
+        if (mBtA2dProxyListener != null) {
+            if (a2dpProxy!=null) {
+                List<BluetoothDevice> a2dpConnectedDevices = a2dpProxy.getConnectedDevices();
+                if (a2dpConnectedDevices.size() != 0) {
+                    for (BluetoothDevice device : a2dpConnectedDevices) {
+                        mBtA2dProxyListener.notifyBtA2dpEvent(device, BtA2dpEvent.CONNECTED);
+                    }
+                }
+            }
+        }
     }
 
     public void toggleBluetoothA2dp(BluetoothDevice device) {
         if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
-            Log.e(TAG,"create Bond");
             device.createBond();
         }
         else {
@@ -65,14 +81,12 @@ public class BtA2dpConnectionManager {
                 List<BluetoothDevice> a2dpConnectedDevices = a2dpProxy.getConnectedDevices();
                 if (a2dpConnectedDevices.size() != 0) {
                     for (BluetoothDevice localDevice : a2dpConnectedDevices) { // only one device can be connected
-                        Log.e(TAG,"disconnect " + localDevice.getName());
                         disconnectBluetoothA2dp(localDevice);
                         if (localDevice.getAddress().equals(device.getAddress()))
                             // current device was connected:  toggle means disconnect
                             return;
                     }
                 }
-                Log.e(TAG,"connect " + device.getName());
                 //second: A2dp connection to the new device
                 if (a2dpProxy != null) {
                     try {
