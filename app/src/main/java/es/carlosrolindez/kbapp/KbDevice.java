@@ -26,13 +26,9 @@ public class KbDevice extends BtDevice {
     private static final String selectBtFootprint2 = "34:81:F4";
     private static final String inWallWiFiFootprint = "12:19:4A";
 
-//    protected static final int WAITING = 0;
-//    protected static final int PROGRESSING_UP = 1;
-///    protected static final int CONNECTED = 2;
-//    protected static final int PROGRESSING_DOWN = 3;
+
 
     protected final int deviceType;
-//    protected int btVisualState;
     protected boolean connectionInProcess;
     protected boolean sppConnected;
 
@@ -41,8 +37,6 @@ public class KbDevice extends BtDevice {
         deviceType = getDeviceType(device.getAddress());
         connectionInProcess = false;
         sppConnected = false;
- //       btVisualState = WAITING;
-
     }
 
     public void setConnectionInProcessState(boolean state) {

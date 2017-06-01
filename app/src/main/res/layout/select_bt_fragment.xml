@@ -1,23 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:visibility="visible" >
-    <TextView
-        android:id="@+id/SelectBtName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="35dp"
-        android:layout_marginLeft="20dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:text="NAME"
-        android:typeface="monospace"
-        android:textSize="22sp"
-        android:textStyle="bold" />
+    android:background="@drawable/windows"
+    android:orientation="vertical"
+    android:padding="3dp"
+    android:visibility="visible">
 
-</RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:orientation="horizontal"
+        android:weightSum="5">
+
+        <TextView
+            android:id="@+id/SelectBtName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="15dp"
+            android:layout_weight="4"
+            android:text="NAME"
+            android:textAlignment="center"
+            android:textColor="@color/colorAccent"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:typeface="monospace" />
+
+        <Switch
+            android:id="@+id/switch_on_off"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="15dp"
+            android:layout_weight="1"
+            android:elevation="12dp"
+            android:text="On"
+            android:textAlignment="center" />
+
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/fm_button"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:text="FM" />
+
+    <Button
+        android:id="@+id/dab_button"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:text="DAB" />
+
+    <Button
+        android:id="@+id/bt_button"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:text="Bluetooth" />
+
+    <LinearLayout
+        android:id="@+id/layout_bt_button"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_gravity="center_vertical|center_horizontal|center"
+            app:srcCompat="@drawable/animated_bluetooth" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/monitor_button"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:text="Monitor" />
+
+
+    <ScrollView
+        android:id="@+id/SCROLLER_ID"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0"
+        android:scrollbars="vertical">
+
+        <TextView
+            android:id="@+id/TEXT_STATUS_ID"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:textColor="#fdfd00"
+            android:textSize="18sp" />
+    </ScrollView>
+
+    <SeekBar
+        android:id="@+id/volumeControl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="20dp"
+        android:max="15" />
+
+</LinearLayout>

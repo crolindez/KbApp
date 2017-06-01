@@ -8,7 +8,8 @@
         android:id="@+id/bt_scan"
         android:icon="@mipmap/ic_action_search"
         app:showAsAction="ifRoom"
-        android:title=""/>
+        android:title=""
+        android:visible="false"/>
 
 
     <item

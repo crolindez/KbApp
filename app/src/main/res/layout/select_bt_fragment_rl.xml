@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="visible"
+    android:padding="3dp"
+    android:background="@drawable/windows" >
+
+    <TextView
+        android:id="@+id/SelectBtName"
+        android:layout_width="wrap_content"
+        android:layout_height="32dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:text="NAME"
+        android:textColor="@android:color/holo_blue_bright"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:typeface="monospace" />
+
+    <Switch
+        android:id="@+id/switch_on_off"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@id/SelectBtName"
+        android:layout_marginEnd="32dp"
+        android:textOff="Off"
+        android:textOn="On" />
+
+    <Button
+        android:id="@+id/fm_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/SelectBtName"
+        android:text="FM"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:id="@+id/dab_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/fm_button"
+        android:text="DAB"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:id="@+id/bt_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dab_button"
+        android:text="Bluetooth"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true" />
+
+    <SeekBar
+        android:id="@+id/volumeControl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="20dp"
+        android:max="15" />
+
+
+    <Button
+        android:id="@+id/monitor_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/volumeControl"
+        android:text="Monitor"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true" />
+
+    <RelativeLayout
+        android:id="@+id/bluetooth_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/bt_button"
+        android:layout_above="@id/monitor_button">
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:fillViewport="true"
+            app:srcCompat="@drawable/animated_bluetooth"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true" />
+    </RelativeLayout>
+
+
+
+
+    <ScrollView
+        android:id="@+id/SCROLLER_ID"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/monitor_button"
+        android:layout_above="@id/volumeControl"
+        android:scrollbars="vertical"
+        android:fillViewport="true"
+        android:visibility="invisible">
+
+        <TextView
+            android:id="@+id/TEXT_STATUS_ID"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:textColor="#fdfd00"
+            android:textSize="18sp" />
+    </ScrollView>
+
+</RelativeLayout>

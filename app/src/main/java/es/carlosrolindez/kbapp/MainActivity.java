@@ -10,8 +10,10 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -26,18 +28,19 @@ import es.carlosrolindez.rfcomm.RfCommManager;
 public class MainActivity extends AppCompatActivity implements BtListenerManager.RfListener<BluetoothDevice,BtListenerManager.BtEvent>,
                                                                 BtA2dpConnectionManager.BtA2dpProxyListener,
                                                                 BtConnectionInterface,
-                                                                SelectBtInterface,
-                                                                MainFragment.ProgressBarInterface {
+                                                                SelectBtInterface/*,
+                                                                MainFragment.ProgressBarInterface */{
     private static final String TAG = "MainActivity";
 
     private static final String MAIN_FRAGMENT = "mainFragment";
     private static final String SELECT_BT_FRAGMENT = "selectBtFragment";
+    private static final String COMM_FRAGMENT = "commFragment";
 
 
     private static final int REQUEST_ENABLE_BT = 1;
 
     private enum ActivityState {NOT_SCANNING, SCANNING, CONNECTED}
-    private final ActivityState activityState = ActivityState.NOT_SCANNING;
+    private ActivityState activityState = ActivityState.NOT_SCANNING;
 
     private BluetoothAdapter mBluetoothAdapter = null;
     private BtListenerManager mBtListenerManager = null;
@@ -48,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
     private MainFragment mainFragment;
     private SelectBtFragment mSelectBtFragment;
+    private CommFragment mCommFragment;
 
     private BtSppCommManager mBtSppCommManager = null;
     private LocalBroadcastManager mLocalBroadcastManager;
@@ -57,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
             if (intent.getAction().equals(RfCommManager.STARTED)) {
                 if (mBtSppCommManager.isSocketConnected()) {
                     mainFragment.showSelectBtReady(mBtSppCommManager.getConnectedDevice());
+                    setProgressBar(ActivityState.CONNECTED);
                 }
             } else if (intent.getAction().equals(RfCommManager.MESSAGE)) {
                 String readMessage = intent.getStringExtra(RfCommManager.message_content);
@@ -87,33 +92,49 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
         FragmentManager fm = getSupportFragmentManager();
 
+        ActionBar ab = getSupportActionBar();
+        if (ab!=null) {
+            ab.setDisplayHomeAsUpEnabled(true);
+            ab.setHomeAsUpIndicator(R.drawable.ic_space);
+        }
+
         if (savedInstanceState!=null) {
+            mCommFragment = (CommFragment) fm.findFragmentByTag(COMM_FRAGMENT);
+            mBtSppCommManager = mCommFragment.getSppCommManager();
             mSelectBtFragment = (SelectBtFragment) fm.findFragmentByTag(SELECT_BT_FRAGMENT);
             mainFragment = null;
             if (mSelectBtFragment!=null) {
-                mBtSppCommManager = mSelectBtFragment.getBtSppCommManager();
+   //             mBtSppCommManager = mSelectBtFragment.getBtSppCommManager();
+                if (ab!=null) ab.setHomeAsUpIndicator(R.drawable.ic_back);
             } else {
                 mainFragment = (MainFragment) fm.findFragmentByTag(MAIN_FRAGMENT);
-                mBtSppCommManager = new BtSppCommManager(getApplicationContext());
+ //               mBtSppCommManager = mainFragment.getBtSppCommManager();
+                if (ab!=null) ab.setHomeAsUpIndicator(R.drawable.ic_space);
+
             }
 
         } else {
-            mainFragment = MainFragment.newInstance();
+            Log.e(TAG,"Created Spp Manager");
+            mBtSppCommManager = new BtSppCommManager(getApplicationContext());
+            mCommFragment = CommFragment.newInstance(mBtSppCommManager);
+            fm.beginTransaction()
+                    .add(mCommFragment, COMM_FRAGMENT)
+                    .commit();
+
+            mainFragment = new MainFragment();
+ //           mainFragment = MainFragment.newInstance(mBtSppCommManager);
             mSelectBtFragment = null;
             fm.beginTransaction()
                     .add(R.id.root_layout, mainFragment, MAIN_FRAGMENT)
                     .commit();
-            mBtSppCommManager = new BtSppCommManager(getApplicationContext());
+
+            if (ab!=null) ab.setHomeAsUpIndicator(R.drawable.ic_space);
         }
 
         mBtA2dpConnectionManager = new BtA2dpConnectionManager(getApplication(),this);
 
 
         initializeBtSppListener();
-
-        setProgressBar(ActivityState.NOT_SCANNING);
-
-
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -137,6 +158,8 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
         }
         else
             startRfListening();
+
+
     }
 
     @Override
@@ -168,16 +191,29 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
         // Store instance of the menu item containing progress
         mActionProgressItem = menu.findItem(R.id.mActionProgress);
         scanButton = menu.findItem(R.id.bt_scan);
+        if (mBtSppCommManager.isSocketConnected()) {
+            Log.e("onPrepareOptionsMenu","connected");
+            setProgressBar(ActivityState.CONNECTED);
+        } else {
+            Log.e("onPrepareOptionsMenu","not scanning");
+            setProgressBar(ActivityState.NOT_SCANNING);
+        }
         return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                break;
+            case R.id.bt_scan:
+                if (activityState== ActivityState.NOT_SCANNING) {
+                    Log.e("onOption","Scanning");
 
-        if (id == R.id.bt_scan) {
-            if (activityState== ActivityState.NOT_SCANNING)
-                setProgressBar(ActivityState.SCANNING);
+                    setProgressBar(ActivityState.SCANNING);
+                }
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -187,18 +223,44 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
         switch (state) {
             case NOT_SCANNING:
-            case CONNECTED:
+                Log.e("setProgressBar","NOT_SCANNING");
                 mBluetoothAdapter.cancelDiscovery();
-                if (mActionProgressItem!=null)  mActionProgressItem.setVisible(false);
-                if (scanButton!=null)           scanButton.setVisible(true);
+                if (mActionProgressItem!=null) {
+                    Log.e("progress","false");
+                    mActionProgressItem.setVisible(false);
+                }
+                if (scanButton!=null) {
+                    Log.e("scan","true");
+                    scanButton.setVisible(true);
+                }
                 break;
             case SCANNING:
+                Log.e("setProgressBar","SCANNING");
                 mBluetoothAdapter.startDiscovery();
-                if (mActionProgressItem!=null)  mActionProgressItem.setVisible(true);
-                if (scanButton!=null)           scanButton.setVisible(false);
+                if (mActionProgressItem!=null) {
+                    Log.e("progress","true");
+                    mActionProgressItem.setVisible(true);
+                }
+                if (scanButton!=null)  {
+                    Log.e("scan","false");
+                    scanButton.setVisible(false);
+                }
+                break;
+            case CONNECTED:
+                Log.e("setProgressBar","CONNECTED");
+                mBluetoothAdapter.cancelDiscovery();
+                if (mActionProgressItem!=null) {
+                    Log.e("progress","false");
+                    mActionProgressItem.setVisible(false);
+                }
+                if (scanButton!=null) {
+                    Log.e("scan","false");
+                    scanButton.setVisible(false);
+                }
                 break;
 
         }
+        activityState=state;
     }
 
     private void startRfListening() {
@@ -222,13 +284,19 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
         switch (event) {
             case DISCOVERY_FINISHED:
-                setProgressBar(ActivityState.NOT_SCANNING);
+                if (activityState==ActivityState.SCANNING) {
+                    Log.e("notifyRf", "Not scanning");
+                    setProgressBar(ActivityState.NOT_SCANNING);
+                }
                 break;
 
             case CONNECTED:
                 break;
             case DISCONNECTED:
 //                mainFragment.hideInProcess(device);
+                break;
+            case NOT_BONDED:
+                mainFragment.hideInProcess(device);
                 break;
 
 
@@ -249,16 +317,23 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
         switch (event) {
             case CONNECTED:
+                Log.e("notifyA2dp","connected");
+                setProgressBar(ActivityState.CONNECTED);
                 if (mainFragment!=null) mainFragment.showConnected(device);
                 if (KbDevice.getDeviceType(device.getAddress())==KbDevice.SELECTBT) {
                     if (!mBtSppCommManager.isSocketConnected()) {
                         connectBtSpp(device);
-                    } else
-                        if (mainFragment!=null) mainFragment.showSelectBtReady(device);
+                    } else {
+                        if (mainFragment != null) mainFragment.showSelectBtReady(device);
+
+                    }
                 }
                 break;
 
             case DISCONNECTED:
+                Log.e("notifyA2dp","disconnected");
+                setProgressBar(ActivityState.NOT_SCANNING);
+
                 if (mainFragment!=null) mainFragment.showDisconnected(device);
                 break;
 
@@ -302,12 +377,13 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
     }
 
 
-    @Override
+/*    @Override
     public void stopProgressBar() {
         setProgressBar(ActivityState.CONNECTED);
     }
-
-    private void connectBtSpp(BluetoothDevice device) {
+*/
+    @Override
+    public void connectBtSpp(BluetoothDevice device) {
         new BtSppClientSocket(mBtSppCommManager,device).start();
     }
 
@@ -335,8 +411,16 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
     @Override
     public void enterSelectBtFragment() {
         if (mBtSppCommManager!=null) {
-            mSelectBtFragment = SelectBtFragment.newInstance(mBtSppCommManager);
+            ActionBar ab = getSupportActionBar();
+            if (ab!=null) {
+                ab.setDisplayHomeAsUpEnabled(true);
+                ab.setHomeAsUpIndicator(R.drawable.ic_back);
+            }
+
+  //          mSelectBtFragment = SelectBtFragment.newInstance(mBtSppCommManager);
+            mSelectBtFragment = new SelectBtFragment();
             getSupportFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
                     .replace(R.id.root_layout, mSelectBtFragment, SELECT_BT_FRAGMENT)
                     .addToBackStack(null)
                     .commit();
@@ -347,6 +431,9 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
     public void onBackPressed() {
         FragmentManager fm = getSupportFragmentManager();
         int count = fm.getBackStackEntryCount();
+        ActionBar ab = getSupportActionBar();
+        if (ab!=null) ab.setHomeAsUpIndicator(R.drawable.ic_space);
+
 
         if (count == 0) {
             super.onBackPressed();

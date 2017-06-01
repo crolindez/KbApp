@@ -148,25 +148,23 @@ class BtDeviceListAdapter extends BaseAdapter {
                 bluetoothIcon.setClickable(false);
                 AnimatedVectorDrawable animationBluetooth= (AnimatedVectorDrawable) mContext.getDrawable(R.drawable.animated_bluetooth);
                 bluetoothIcon.setImageDrawable(animationBluetooth);
- //               if (device.btVisualState== KbDevice.CONNECTED) {
-                    if (animationBluetooth!=null) animationBluetooth.start();
- //               }
- //               device.btVisualState = KbDevice.PROGRESSING_DOWN;
+                if (animationBluetooth!=null) animationBluetooth.start();
+
 
             } else {
                 bluetoothIcon.setVisibility(View.VISIBLE);
-                bluetoothIcon.setClickable(false);
- /*               if (device.deviceType==KbDevice.SELECTBT) {
-                    Log.e(TAG,"animation");
-                    AnimatedVectorDrawable animationPlaySelect= (AnimatedVectorDrawable) mContext.getDrawable(R.drawable.animated_select);
-                    bluetoothIcon.setImageDrawable(animationPlaySelect);
-                    if (device.btVisualState== KbDevice.PROGRESSING_UP) {
-                        if (animationPlaySelect != null) animationPlaySelect.start();
-                    }
-                } else {*/
-                    bluetoothIcon.setImageResource(R.drawable.ic_bluetooth);
-//                }
- //               device.btVisualState = KbDevice.CONNECTED;
+                if (device.deviceType==KbDevice.SELECTBT) {
+                    bluetoothIcon.setClickable(true);
+                    bluetoothIcon.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mSelectBtInterface.connectBtSpp(device.mDevice);
+                        }
+                    });
+                } else {
+                    bluetoothIcon.setClickable(false);
+                }
+                bluetoothIcon.setImageResource(R.drawable.ic_bluetooth);
             }
         } else {
             if (device.getConnectionInProcessState()) {
@@ -174,15 +172,10 @@ class BtDeviceListAdapter extends BaseAdapter {
                 bluetoothIcon.setClickable(false);
                 AnimatedVectorDrawable animationBluetooth= (AnimatedVectorDrawable) mContext.getDrawable(R.drawable.animated_bluetooth);
                 bluetoothIcon.setImageDrawable(animationBluetooth);
-//                if (device.btVisualState== KbDevice.WAITING) {
-                    if (animationBluetooth!=null) animationBluetooth.start();
- //               }
-//                device.btVisualState = KbDevice.PROGRESSING_UP;
+                if (animationBluetooth!=null) animationBluetooth.start();
             } else {
                 bluetoothIcon.setVisibility(View.INVISIBLE);
                 bluetoothIcon.setImageResource(R.drawable.ic_bluetooth);
- ///               device.btVisualState = KbDevice.WAITING;
-
             }
         }
 

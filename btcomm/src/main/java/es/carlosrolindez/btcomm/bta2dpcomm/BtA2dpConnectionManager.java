@@ -167,7 +167,6 @@ public class BtA2dpConnectionManager {
     private final BluetoothProfile.ServiceListener mA2dpProfileListener = new BluetoothProfile.ServiceListener() {
 
         public void onServiceConnected(int profile, BluetoothProfile proxy) {
-
             if (profile == BluetoothProfile.A2DP) {
                 a2dpProxy = (BluetoothA2dp) proxy;
 
@@ -184,7 +183,6 @@ public class BtA2dpConnectionManager {
         }
 
         public void onServiceDisconnected(int profile) {
-
             if (profile == BluetoothProfile.A2DP) {
                 if (mBtA2dProxyListener != null)
                     mBtA2dProxyListener.notifyBtA2dpEvent(null, BtA2dpEvent.DISCONNECTED);
@@ -195,7 +193,6 @@ public class BtA2dpConnectionManager {
     private final BluetoothProfile.ServiceListener mHeadsetProfileListener = new BluetoothProfile.ServiceListener() {
 
         public void onServiceConnected(int profile, BluetoothProfile proxy) {
-
             if (profile == BluetoothProfile.HEADSET) {
                 headsetProxy = (BluetoothHeadset) proxy;
             }
@@ -214,7 +211,6 @@ public class BtA2dpConnectionManager {
             BluetoothDevice device;
             switch (action) {
                 case BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED: {
-
                     int state = intent.getIntExtra(BluetoothA2dp.EXTRA_STATE, BluetoothA2dp.STATE_DISCONNECTED);
                     device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     switch (state) {

@@ -135,6 +135,7 @@ public abstract class RfCommManager<TypeRfSocket> {
     }
 
     public void stopSocket() {
+
         if (socket!=null) {
             closeSocket();
             Intent intent = new Intent(CLOSED);

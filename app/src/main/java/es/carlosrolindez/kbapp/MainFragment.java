@@ -4,12 +4,15 @@ import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+
+import es.carlosrolindez.btcomm.btsppcomm.BtSppCommManager;
 
 public class MainFragment extends Fragment {
 
@@ -21,13 +24,19 @@ public class MainFragment extends Fragment {
     private BtDeviceListAdapter deviceListAdapter = null;
     private ListView mListView = null;
     private BtConnectionInterface mBtInterface;
-    private ProgressBarInterface pbInterface;
+//    private ProgressBarInterface pbInterface;
     private SelectBtInterface mSelectBtInterface;
+/*    private BtSppCommManager mBtSppCommManager = null;
 
-    public static MainFragment newInstance() {
-        MainFragment fragment = new MainFragment();
-        return fragment;
-    }
+    public BtSppCommManager getBtSppCommManager() {
+        return mBtSppCommManager;
+    }*/
+
+//    public static MainFragment newInstance(BtSppCommManager manager) {
+//        MainFragment fragment = new MainFragment();
+////        fragment.mBtSppCommManager = manager;
+//        return fragment;
+//    }
 
     @Override
     public void onAttach(Context context) {
@@ -38,11 +47,11 @@ public class MainFragment extends Fragment {
             throw new ClassCastException(context.toString() + " must implement BtConnectionInterface.");
         }
 
-        if (context instanceof MainFragment.ProgressBarInterface) {
+  /*      if (context instanceof MainFragment.ProgressBarInterface) {
             pbInterface = (MainFragment.ProgressBarInterface) context;
         } else {
             throw new ClassCastException(context.toString() + " must implement MainFragment.ProgressBarInterface.");
-        }
+        }*/
 
         if (context instanceof SelectBtInterface) {
             mSelectBtInterface = (SelectBtInterface) context;
@@ -50,6 +59,13 @@ public class MainFragment extends Fragment {
             throw new ClassCastException(context.toString() + " must implement SelectBtInterface.");
         }
     }
+
+/*    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }*/
+
 
 
     @Override
@@ -77,14 +93,14 @@ public class MainFragment extends Fragment {
         deviceListAdapter = new BtDeviceListAdapter(activity, deviceList, mBtInterface, mSelectBtInterface );
         mListView.setAdapter(deviceListAdapter);
 
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+ /*       mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 pbInterface.stopProgressBar();
                 KbDevice device = (KbDevice)parent.getItemAtPosition(position);
                 mBtInterface.toggleBluetoothA2dp(device);
             }
-        });
+        });*/
 
     }
 
@@ -101,11 +117,11 @@ public class MainFragment extends Fragment {
         outState.putParcelable(DEVICE_LIST,deviceList);
     }
 
-
+/*
     public interface ProgressBarInterface {
         void stopProgressBar();
     }
-
+*/
     public void addBtDevice(String name, KbDevice device) {
 
         for (KbDevice listDevice : deviceList)
