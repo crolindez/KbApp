@@ -3,6 +3,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/selectBt"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/windows"
@@ -17,7 +18,7 @@
         android:weightSum="5">
 
         <TextView
-            android:id="@+id/SelectBtName"
+            android:id="@+id/selectBtName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
@@ -50,11 +51,39 @@
         android:layout_height="42dp"
         android:text="FM" />
 
+    <LinearLayout
+        android:id="@+id/layout_fm_button"
+        android:animateLayoutChanges="true"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0"
+        android:orientation="vertical">
+
+
+    </LinearLayout>
+
     <Button
         android:id="@+id/dab_button"
         android:layout_width="match_parent"
         android:layout_height="42dp"
         android:text="DAB" />
+
+    <LinearLayout
+        android:id="@+id/layout_dab_button"
+        android:animateLayoutChanges="true"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0"
+        android:orientation="horizontal">
+        <ImageView
+            android:id="@+id/dab_imageView"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_gravity="center_vertical|center_horizontal|center"
+            app:srcCompat="@drawable/ic_dab" />
+
+    </LinearLayout>
+
 
     <Button
         android:id="@+id/bt_button"
@@ -64,13 +93,14 @@
 
     <LinearLayout
         android:id="@+id/layout_bt_button"
+        android:animateLayoutChanges="true"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="0"
         android:orientation="horizontal">
 
         <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/bt_imageView"
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:layout_gravity="center_vertical|center_horizontal|center"
@@ -85,14 +115,15 @@
 
 
     <ScrollView
-        android:id="@+id/SCROLLER_ID"
+        android:id="@+id/scroll_monitor"
+        android:animateLayoutChanges="true"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0"
         android:scrollbars="vertical">
 
         <TextView
-            android:id="@+id/TEXT_STATUS_ID"
+            android:id="@+id/text_monitor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
@@ -104,8 +135,8 @@
         android:id="@+id/volumeControl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_margin="20dp"
-        android:max="15" />
+        android:max="15"
+        android:visibility="invisible"/>
 
 </LinearLayout>

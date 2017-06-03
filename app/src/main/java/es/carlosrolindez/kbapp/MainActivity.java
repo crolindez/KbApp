@@ -7,13 +7,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -28,8 +30,8 @@ import es.carlosrolindez.rfcomm.RfCommManager;
 public class MainActivity extends AppCompatActivity implements BtListenerManager.RfListener<BluetoothDevice,BtListenerManager.BtEvent>,
                                                                 BtA2dpConnectionManager.BtA2dpProxyListener,
                                                                 BtConnectionInterface,
-                                                                SelectBtInterface/*,
-                                                                MainFragment.ProgressBarInterface */{
+                                                                BtDeviceListAdapter.TransitionInterface,
+                                                                SelectBtMachine.SppComm{
     private static final String TAG = "MainActivity";
 
     private static final String MAIN_FRAGMENT = "mainFragment";
@@ -54,7 +56,11 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
     private CommFragment mCommFragment;
 
     private BtSppCommManager mBtSppCommManager = null;
+
+    private SelectBtMachine mSelectBtMachine;
+
     private LocalBroadcastManager mLocalBroadcastManager;
+
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -65,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
                 }
             } else if (intent.getAction().equals(RfCommManager.MESSAGE)) {
                 String readMessage = intent.getStringExtra(RfCommManager.message_content);
-                //TODO MESSAGE                    if (readMessage.equals("Ping")) mp.start();
+                mSelectBtMachine.interpreter(readMessage);
             } else if (intent.getAction().equals(RfCommManager.STOPPED)) {
                 if (mBtSppCommManager.isSocketConnected())
                     mBtSppCommManager.closeSocket();
@@ -98,23 +104,23 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
             ab.setHomeAsUpIndicator(R.drawable.ic_space);
         }
 
+        mSelectBtMachine = new SelectBtMachine(this);
+
         if (savedInstanceState!=null) {
             mCommFragment = (CommFragment) fm.findFragmentByTag(COMM_FRAGMENT);
             mBtSppCommManager = mCommFragment.getSppCommManager();
             mSelectBtFragment = (SelectBtFragment) fm.findFragmentByTag(SELECT_BT_FRAGMENT);
             mainFragment = null;
             if (mSelectBtFragment!=null) {
-   //             mBtSppCommManager = mSelectBtFragment.getBtSppCommManager();
                 if (ab!=null) ab.setHomeAsUpIndicator(R.drawable.ic_back);
+                mSelectBtFragment.setSelectMachine(mSelectBtMachine);
             } else {
                 mainFragment = (MainFragment) fm.findFragmentByTag(MAIN_FRAGMENT);
- //               mBtSppCommManager = mainFragment.getBtSppCommManager();
                 if (ab!=null) ab.setHomeAsUpIndicator(R.drawable.ic_space);
 
             }
 
         } else {
-            Log.e(TAG,"Created Spp Manager");
             mBtSppCommManager = new BtSppCommManager(getApplicationContext());
             mCommFragment = CommFragment.newInstance(mBtSppCommManager);
             fm.beginTransaction()
@@ -122,7 +128,6 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
                     .commit();
 
             mainFragment = new MainFragment();
- //           mainFragment = MainFragment.newInstance(mBtSppCommManager);
             mSelectBtFragment = null;
             fm.beginTransaction()
                     .add(R.id.root_layout, mainFragment, MAIN_FRAGMENT)
@@ -192,10 +197,8 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
         mActionProgressItem = menu.findItem(R.id.mActionProgress);
         scanButton = menu.findItem(R.id.bt_scan);
         if (mBtSppCommManager.isSocketConnected()) {
-            Log.e("onPrepareOptionsMenu","connected");
             setProgressBar(ActivityState.CONNECTED);
         } else {
-            Log.e("onPrepareOptionsMenu","not scanning");
             setProgressBar(ActivityState.NOT_SCANNING);
         }
         return super.onPrepareOptionsMenu(menu);
@@ -209,8 +212,6 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
                 break;
             case R.id.bt_scan:
                 if (activityState== ActivityState.NOT_SCANNING) {
-                    Log.e("onOption","Scanning");
-
                     setProgressBar(ActivityState.SCANNING);
                 }
                 break;
@@ -223,38 +224,29 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
         switch (state) {
             case NOT_SCANNING:
-                Log.e("setProgressBar","NOT_SCANNING");
                 mBluetoothAdapter.cancelDiscovery();
                 if (mActionProgressItem!=null) {
-                    Log.e("progress","false");
                     mActionProgressItem.setVisible(false);
                 }
                 if (scanButton!=null) {
-                    Log.e("scan","true");
                     scanButton.setVisible(true);
                 }
                 break;
             case SCANNING:
-                Log.e("setProgressBar","SCANNING");
                 mBluetoothAdapter.startDiscovery();
                 if (mActionProgressItem!=null) {
-                    Log.e("progress","true");
                     mActionProgressItem.setVisible(true);
                 }
                 if (scanButton!=null)  {
-                    Log.e("scan","false");
                     scanButton.setVisible(false);
                 }
                 break;
             case CONNECTED:
-                Log.e("setProgressBar","CONNECTED");
                 mBluetoothAdapter.cancelDiscovery();
                 if (mActionProgressItem!=null) {
-                    Log.e("progress","false");
                     mActionProgressItem.setVisible(false);
                 }
                 if (scanButton!=null) {
-                    Log.e("scan","false");
                     scanButton.setVisible(false);
                 }
                 break;
@@ -272,6 +264,100 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mLocalBroadcastManager!=null)
+            mLocalBroadcastManager.unregisterReceiver(mReceiver);
+    }
+
+
+
+    @Override
+    public void onBackPressed() {
+        FragmentManager fm = getSupportFragmentManager();
+        int count = fm.getBackStackEntryCount();
+        ActionBar ab = getSupportActionBar();
+        if (ab!=null) ab.setHomeAsUpIndicator(R.drawable.ic_space);
+
+
+        if (count == 0) {
+            super.onBackPressed();
+        } else {
+            fm.popBackStack();
+            mainFragment = (MainFragment) fm.findFragmentByTag(MAIN_FRAGMENT);
+        }
+
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event)
+    {
+        if (mSelectBtFragment==null) return super.dispatchKeyEvent(event);
+
+
+ //       if (!mSelectBtMachine.onOff) return super.dispatchKeyEvent(event);
+
+ //       final AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+ //       int volume;
+
+
+//        if (!selectBtState.onOff)
+//            if (event.getKeyCode()==KeyEvent.KEYCODE_BACK)
+//                return super.dispatchKeyEvent(event);
+        if (event.getAction() == KeyEvent.ACTION_DOWN)
+        {
+            switch (event.getKeyCode())
+            {
+                case KeyEvent.KEYCODE_VOLUME_UP:
+                    if (!mSelectBtMachine.onOff) return true;
+                    if (mSelectBtMachine.channel==SelectBtMachine.BT_CHANNEL) {
+                        AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                        int volume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+                        if  (volume < am.getStreamMaxVolume(AudioManager.STREAM_MUSIC)) {
+                            am.setStreamVolume(AudioManager.STREAM_MUSIC, volume+1,	0);
+                            mSelectBtFragment.updateVolume(volume+1);
+                        }
+                    } else if (mSelectBtMachine.channel==SelectBtMachine.FM_CHANNEL){
+                        if  (mSelectBtMachine.volumeFM < SelectBtMachine.MAX_VOLUME_FM) {
+                            mSelectBtMachine.setVolumeFM(mSelectBtMachine.volumeFM+1);
+                            mSelectBtFragment.updateVolume(mSelectBtMachine.volumeFM);
+                        }
+                    }
+                    return true;
+
+                case KeyEvent.KEYCODE_VOLUME_DOWN:
+                    if (!mSelectBtMachine.onOff) return true;
+                    if (mSelectBtMachine.channel==SelectBtMachine.BT_CHANNEL) {
+                        AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                        int volume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+                        if  (volume > 0) {
+                            am.setStreamVolume(AudioManager.STREAM_MUSIC, volume-1,	0);
+                            mSelectBtFragment.updateVolume(volume-1);
+                        }
+                    } else if (mSelectBtMachine.channel==SelectBtMachine.FM_CHANNEL){
+                        if  (mSelectBtMachine.volumeFM > 0) {
+                            mSelectBtMachine.setVolumeFM(mSelectBtMachine.volumeFM-1);
+                            mSelectBtFragment.updateVolume(mSelectBtMachine.volumeFM);
+                        }
+                    }
+                    return true;
+//                case KeyEvent.KEYCODE_BACK:
+//                    return super.dispatchKeyEvent(event);
+            }
+        }
+//        else {
+ //           if (event.getKeyCode()==KeyEvent.KEYCODE_BACK) return super.dispatchKeyEvent(event);
+ //       }
+//        return true;
+        return super.dispatchKeyEvent(event);
+    }
+
+
+    //*************************************************************
+    // Implementation of RfListener
+    //*************************************************************
+    @Override
     public void addRfDevice(String name, BluetoothDevice device) {
         if (mainFragment!=null) {
             KbDevice newDevice = new KbDevice(name, device);
@@ -280,12 +366,12 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
         }
     }
 
+    @Override
     public void notifyRfEvent(BluetoothDevice device,  BtListenerManager.BtEvent event) {
 
         switch (event) {
             case DISCOVERY_FINISHED:
                 if (activityState==ActivityState.SCANNING) {
-                    Log.e("notifyRf", "Not scanning");
                     setProgressBar(ActivityState.NOT_SCANNING);
                 }
                 break;
@@ -312,17 +398,28 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
         }
     }
 
-    public void notifyBtA2dpEvent(BluetoothDevice device,  BtA2dpConnectionManager.BtA2dpEvent event) {
+    //*************************************************************
+    // Implementation of BtA2dpProxyListener
+    //*************************************************************
+    @Override
+    public void notifyBtA2dpEvent(final BluetoothDevice device,  BtA2dpConnectionManager.BtA2dpEvent event) {
 
 
         switch (event) {
             case CONNECTED:
-                Log.e("notifyA2dp","connected");
                 setProgressBar(ActivityState.CONNECTED);
                 if (mainFragment!=null) mainFragment.showConnected(device);
                 if (KbDevice.getDeviceType(device.getAddress())==KbDevice.SELECTBT) {
                     if (!mBtSppCommManager.isSocketConnected()) {
-                        connectBtSpp(device);
+
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                connectBtSpp(device);
+                            }
+                        }, 250);
+
+
                     } else {
                         if (mainFragment != null) mainFragment.showSelectBtReady(device);
 
@@ -331,7 +428,6 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
                 break;
 
             case DISCONNECTED:
-                Log.e("notifyA2dp","disconnected");
                 setProgressBar(ActivityState.NOT_SCANNING);
 
                 if (mainFragment!=null) mainFragment.showDisconnected(device);
@@ -345,6 +441,12 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
 
     }
+
+
+
+    //*************************************************************
+    // Implementation of BtConnectionInterface
+    //*************************************************************
 
     @Override
     public void forgetBluetoothA2dp(KbDevice device) {
@@ -376,12 +478,6 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
     }
 
-
-/*    @Override
-    public void stopProgressBar() {
-        setProgressBar(ActivityState.CONNECTED);
-    }
-*/
     @Override
     public void connectBtSpp(BluetoothDevice device) {
         new BtSppClientSocket(mBtSppCommManager,device).start();
@@ -401,12 +497,9 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
     }
 
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mLocalBroadcastManager!=null)
-            mLocalBroadcastManager.unregisterReceiver(mReceiver);
-    }
+    //*************************************************************
+    // Implementation of BtDeviceListAdapter.TransitionInterface
+    //*************************************************************
 
     @Override
     public void enterSelectBtFragment() {
@@ -417,8 +510,7 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
                 ab.setHomeAsUpIndicator(R.drawable.ic_back);
             }
 
-  //          mSelectBtFragment = SelectBtFragment.newInstance(mBtSppCommManager);
-            mSelectBtFragment = new SelectBtFragment();
+            mSelectBtFragment = SelectBtFragment.newInstance(mSelectBtMachine);
             getSupportFragmentManager().beginTransaction()
                     .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
                     .replace(R.id.root_layout, mSelectBtFragment, SELECT_BT_FRAGMENT)
@@ -427,21 +519,14 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
         }
     }
 
+    //*************************************************************
+    // Implementation of SppComm interface
+    //*************************************************************
+
     @Override
-    public void onBackPressed() {
-        FragmentManager fm = getSupportFragmentManager();
-        int count = fm.getBackStackEntryCount();
-        ActionBar ab = getSupportActionBar();
-        if (ab!=null) ab.setHomeAsUpIndicator(R.drawable.ic_space);
-
-
-        if (count == 0) {
-            super.onBackPressed();
-        } else {
-            fm.popBackStack();
-            mainFragment = (MainFragment) fm.findFragmentByTag(MAIN_FRAGMENT);
-        }
-
+    public void sendSppMessage(String message){
+        if (mBtSppCommManager!=null)
+            if (mBtSppCommManager.isSocketConnected())
+                mBtSppCommManager.write(message);
     }
-
 }

@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.util.Log;
 
 import java.util.Set;
 
@@ -80,7 +79,6 @@ public class BtListenerManager extends RfListenerManager<BluetoothDevice,BtListe
 
             // When discovery finds a device
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                Log.e(TAG,"FOUND");
                 // Get the BluetoothDevice object from the Intent
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if (mRfListener != null)
@@ -88,7 +86,6 @@ public class BtListenerManager extends RfListenerManager<BluetoothDevice,BtListe
 
                 // When discovery is finished, change the Activity title
             } else if (BluetoothDevice.ACTION_NAME_CHANGED.equals(action)) {
-                Log.e(TAG,"CHANGED");
                 // Get the BluetoothDevice object from the Intent
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if (mRfListener != null)
@@ -96,40 +93,33 @@ public class BtListenerManager extends RfListenerManager<BluetoothDevice,BtListe
 
                 // When discovery is finished, change the Activity title
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-                Log.e(TAG,"FINISHED");
                 if (mRfListener != null)
                     mRfListener.notifyRfEvent(null, BtEvent.DISCOVERY_FINISHED);
 
             } else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
-                Log.e(TAG,"ACL_CONNECTED");
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if (mRfListener != null)
                     mRfListener.notifyRfEvent(device, BtEvent.CONNECTED);
 
             } else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
-                Log.e(TAG,"DISCONNECTED");
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if (mRfListener != null)
                     mRfListener.notifyRfEvent(device, BtEvent.DISCONNECTED);
 
             } else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
-                Log.e(TAG,"BOND_CHANGED");
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 switch (device.getBondState()) {
                     case BluetoothDevice.BOND_BONDED:
-                        Log.e(TAG,"BONDED");
                         if (mRfListener != null) {
                             mRfListener.notifyRfEvent(device, BtEvent.BONDED);
                         }
                         break;
                     case BluetoothDevice.BOND_BONDING:
-                        Log.e(TAG,"BONDING");
                         if (mRfListener != null) {
                             mRfListener.notifyRfEvent(device, BtEvent.CHANGING);
                         }
                         break;
                     case BluetoothDevice.BOND_NONE:
-                        Log.e(TAG,"NONE");
                         if (mRfListener != null) {
                             mRfListener.notifyRfEvent(device, BtEvent.NOT_BONDED);
                         }

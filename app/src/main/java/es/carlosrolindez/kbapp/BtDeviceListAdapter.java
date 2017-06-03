@@ -25,7 +25,7 @@ class BtDeviceListAdapter extends BaseAdapter {
 	private final ArrayKbDevice mKbDeviceList;
     private final Context mContext;
     private final BtConnectionInterface mBtInterface;
-    private final SelectBtInterface mSelectBtInterface;
+    private final TransitionInterface mTransitionInterface;
 
     private boolean viewLocked = false;
     private int numViewLocked = 0;
@@ -35,14 +35,18 @@ class BtDeviceListAdapter extends BaseAdapter {
     private final int mShortAnimationDuration;
     private final int mLongAnimationDuration;
 
+    public interface TransitionInterface {
+        void enterSelectBtFragment();
 
-	public BtDeviceListAdapter(Context context, ArrayKbDevice deviceList, BtConnectionInterface btInterface, SelectBtInterface selectInterface)
+    }
+
+	public BtDeviceListAdapter(Context context, ArrayKbDevice deviceList, BtConnectionInterface btInterface, TransitionInterface transitionInterface)
 	{
 		mKbDeviceList = deviceList;
 		inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mContext = context;
         mBtInterface = btInterface;
-        mSelectBtInterface = selectInterface;
+        mTransitionInterface = transitionInterface;
         mShortAnimationDuration = mContext.getResources().getInteger(android.R.integer.config_shortAnimTime);
         mLongAnimationDuration = mContext.getResources().getInteger(android.R.integer.config_longAnimTime);
 	}
@@ -138,7 +142,7 @@ class BtDeviceListAdapter extends BaseAdapter {
                 bluetoothIcon.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mSelectBtInterface.enterSelectBtFragment();
+                        mTransitionInterface.enterSelectBtFragment();
                     }
                 });
                 if (animationPlaySelect != null) animationPlaySelect.start();
@@ -158,7 +162,7 @@ class BtDeviceListAdapter extends BaseAdapter {
                     bluetoothIcon.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            mSelectBtInterface.connectBtSpp(device.mDevice);
+                            mBtInterface.connectBtSpp(device.mDevice);
                         }
                     });
                 } else {

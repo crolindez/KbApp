@@ -1,66 +1,360 @@
 package es.carlosrolindez.kbapp;
 
 import android.app.Activity;
+import android.content.Context;
+import android.media.AudioManager;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.support.transition.TransitionManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 
-import es.carlosrolindez.btcomm.btsppcomm.BtSppCommManager;
 
-
-public class SelectBtFragment extends Fragment {
+public class SelectBtFragment extends Fragment implements SelectBtMachine.SelectBtInterface {
     public final static String TAG = "SelectBtFragment";
 
- /*   private BtSppCommManager mBtSppCommManager = null;
+    private SelectBtMachine mSelectBtMachine;
 
-    public BtSppCommManager getBtSppCommManager() {
-        return mBtSppCommManager;
-    }*/
+    // Views
 
- /*   public static SelectBtFragment newInstance(BtSppCommManager manager) {
-        SelectBtFragment fragment = new SelectBtFragment();
- //       fragment.mBtSppCommManager = manager;
-        return fragment;
-    }*/
+    private LinearLayout selectBtLayout;
+    private TextView nameSelectBt;
+    private Switch onOffSwitch;
 
-/*    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRetainInstance(true);
-    }*/
+    private Button fmButton;
+    private LinearLayout mFmLayout;
+
+    private Button dabButton;
+    private LinearLayout mDabLayout;
+
+    private Button btButton;
+    private LinearLayout mBtLayout;
+
+    private Button monitorButton;
+    private ScrollView mScrollView;
+    private String monitorText;
+    private TextView mTextStatus;
+
+    private SeekBar volumeBar;
+
+    private boolean monitorActive;
+
+
+
+
+    public static SelectBtFragment newInstance(SelectBtMachine machine) {
+        SelectBtFragment selectBtFragment = new SelectBtFragment();
+        selectBtFragment.setSelectMachine(machine);
+        return selectBtFragment;
+    }
+
+    public void setSelectMachine (SelectBtMachine selectBtMachine) {
+        mSelectBtMachine = selectBtMachine;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.select_bt_fragment, container, false);
-        // TODO try linearLayout to hide components
-        // TODO or reinflate view
 
     }
+
     @Override
-    public void onActivityCreated(Bundle savedInstanceState)
-    {
+    public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
         final Activity activity = getActivity();
 
-        TextView mTextStatus = (TextView) activity.findViewById(R.id.TEXT_STATUS_ID);
-        final ScrollView mScrollView = (ScrollView) activity.findViewById(R.id.SCROLLER_ID);
+        selectBtLayout = (LinearLayout) activity.findViewById(R.id.selectBt);
+        monitorActive = false;
+
+        nameSelectBt = (TextView) activity.findViewById(R.id.selectBtName);
+        onOffSwitch = (Switch) activity.findViewById(R.id.switch_on_off);
+
+        onOffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                switchOnOff(isChecked);
+                updateChannel();
+            }
+        });
+
+        fmButton = (Button) activity.findViewById(R.id.fm_button);
+        mFmLayout = (LinearLayout) activity.findViewById(R.id.layout_fm_button);
+
+        dabButton = (Button) activity.findViewById(R.id.dab_button);
+        mDabLayout = (LinearLayout) activity.findViewById(R.id.layout_dab_button);
+
+        btButton = (Button) activity.findViewById(R.id.bt_button);
+        mBtLayout = (LinearLayout) activity.findViewById(R.id.layout_bt_button);
+
+        monitorButton = (Button) activity.findViewById(R.id.monitor_button);
+        mTextStatus = (TextView) activity.findViewById(R.id.text_monitor);
+        mTextStatus.setText("");
+        mScrollView = (ScrollView) activity.findViewById(R.id.scroll_monitor);
         mScrollView.fullScroll(View.FOCUS_DOWN);
+        //mScrollView.smoothScrollTo(0, mTextStatus.getBottom());
+        mScrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                mScrollView.fullScroll(View.FOCUS_DOWN);
+            }
+        });
+        monitorText = "";
 
-        String s="";
-        for(int x=0; x<=100; x++) {
-            s += "Line: " + String.valueOf(x) + "\n";
-            mScrollView.smoothScrollTo(0, mTextStatus.getBottom());
+        volumeBar = (SeekBar) activity.findViewById(R.id.volumeControl);
+        volumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
+            @Override
+            public void onProgressChanged(SeekBar seekBar,int progressValue, boolean fromUser) {
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                if (mSelectBtMachine.channel==SelectBtMachine.FM_CHANNEL) {
+                    mSelectBtMachine.setVolumeFM(volumeBar.getProgress());
+                } else if (mSelectBtMachine.channel==SelectBtMachine.BT_CHANNEL) {
+                    AudioManager am = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
+                    am.setStreamVolume(AudioManager.STREAM_MUSIC, volumeBar.getProgress(),	0);
+                }
+            }
+        });
+
+
+        fmButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                monitorActive = false;
+                if (mSelectBtMachine.onOff) selectChannel(SelectBtMachine.FM_CHANNEL);
+            }
+        });
+
+        dabButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                monitorActive = false;
+                if (mSelectBtMachine.onOff) selectChannel(SelectBtMachine.DAB_CHANNEL);
+            }
+        });
+
+
+        btButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                monitorActive = false;
+                if (mSelectBtMachine.onOff) selectChannel(SelectBtMachine.BT_CHANNEL);
+            }
+        });
+
+        monitorButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                monitorActive = true;
+                showLayout ();
+            }
+        });
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mSelectBtMachine.setSelectBtInterface(this);
+        mSelectBtMachine.askAll();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mSelectBtMachine.setSelectBtInterface(null);
+    }
+
+    //*************************************************************
+    //   Members for changing mSelectBtMachine states
+    //*************************************************************
+
+
+    private void switchOnOff(boolean state) {
+        if (mSelectBtMachine.onOff != state) {
+            mSelectBtMachine.setOnOff(state);
+            updateOnOff(mSelectBtMachine.onOff);
+        }
+    }
+
+    private void selectChannel(int channel) {
+        if (mSelectBtMachine.channel!=channel) {
+            mSelectBtMachine.setChannel(channel);
+        }
+        updateChannel();
+    }
+
+
+    //*************************************************************
+    //   Members for updating view
+    //*************************************************************
+
+
+
+    private void showLayout(/*int channel*/) {
+        TransitionManager.beginDelayedTransition(selectBtLayout);
+        LinearLayout.LayoutParams paramsFmLayout = (LinearLayout.LayoutParams) mFmLayout.getLayoutParams();
+        LinearLayout.LayoutParams paramsDabLayout = (LinearLayout.LayoutParams) mDabLayout.getLayoutParams();
+        LinearLayout.LayoutParams paramsBtLayout = (LinearLayout.LayoutParams) mBtLayout.getLayoutParams();
+        LinearLayout.LayoutParams paramsScrollLayout = (LinearLayout.LayoutParams) mScrollView.getLayoutParams();
+
+        paramsFmLayout.weight = 0;
+        paramsDabLayout.weight = 0;
+        paramsBtLayout.weight = 0;
+        paramsScrollLayout.weight = 0;
+
+        if (monitorActive)
+            paramsScrollLayout.weight = 1;
+        else {
+            if (mSelectBtMachine.onOff) {
+                switch (mSelectBtMachine.channel) {
+                    case SelectBtMachine.FM_CHANNEL:
+                        paramsFmLayout.weight = 1;
+                        break;
+                    case SelectBtMachine.DAB_CHANNEL:
+                        paramsDabLayout.weight = 1;
+                        break;
+                    case SelectBtMachine.BT_CHANNEL:
+                        paramsBtLayout.weight = 1;
+                        break;
+                    case SelectBtMachine.MONITOR_CHANNEL:
+                        paramsScrollLayout.weight = 1;
+                        break;
+
+                    case SelectBtMachine.NO_CHANNEL:
+                    default:
+                        break;
+                }
+            }
         }
 
-        mTextStatus.setText(s);
+        mFmLayout.setLayoutParams(paramsFmLayout);
+        mDabLayout.setLayoutParams(paramsDabLayout);
+        mBtLayout.setLayoutParams(paramsBtLayout);
+        mScrollView.setLayoutParams(paramsScrollLayout);
+    }
 
+    private void showColorSelectedChannel() {
+        if (mSelectBtMachine.onOff) {
+            switch (mSelectBtMachine.channel) {
+                case SelectBtMachine.FM_CHANNEL:
+                    fmButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimary));
+                    dabButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
+                    btButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
+                    break;
+                case SelectBtMachine.DAB_CHANNEL:
+                    fmButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
+                    dabButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimary));
+                    btButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
+                    break;
+                case SelectBtMachine.BT_CHANNEL:
+                    fmButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
+                    dabButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
+                    btButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimary));
+                    break;
+                case SelectBtMachine.NO_CHANNEL:
+                default:
+                    fmButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
+                    dabButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
+                    btButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
+                    break;
+
+            }
+        } else {
+            fmButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
+            dabButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
+            btButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
+        }
+    }
+
+    private void showVolumeBar() {
+        if (mSelectBtMachine.onOff) {
+            switch (mSelectBtMachine.channel) {
+                case SelectBtMachine.FM_CHANNEL:
+                    volumeBar.setVisibility(View.VISIBLE);
+                    volumeBar.setProgress(mSelectBtMachine.volumeFM);
+                    break;
+                case SelectBtMachine.BT_CHANNEL:
+                    AudioManager am = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
+                    volumeBar.setVisibility(View.VISIBLE);
+                    volumeBar.setProgress(am.getStreamVolume(AudioManager.STREAM_MUSIC));
+                    break;
+                case SelectBtMachine.DAB_CHANNEL:
+                case SelectBtMachine.NO_CHANNEL:
+                default:
+                    volumeBar.setVisibility(View.INVISIBLE);
+                    break;
+
+            }
+        } else {
+            volumeBar.setVisibility(View.INVISIBLE);
+        }
+
+    }
+
+    //*************************************************************
+    //   Implementation of SelectBt Interface
+    //*************************************************************
+
+    @Override
+    public void updateName(String name) {
+        nameSelectBt.setText(name);
+    }
+
+    @Override
+    public void updateOnOff(boolean onOff) {
+        onOffSwitch.setChecked(onOff);
+        updateChannel();
+    }
+
+    @Override
+    public void updateChannel() {
+        showLayout();
+        showColorSelectedChannel();
+        showVolumeBar();
+    }
+
+    @Override
+    public void updateVolume(int volume) {
+        volumeBar.setProgress(volume);
+    }
+
+    @Override
+    public void updateFrequency(String frequencyString) {
+
+    }
+
+    @Override
+    public void updateRds(String rdsString) {
+
+    }
+
+    @Override
+    public void updateForceMono(boolean forced) {
+
+
+    }
+
+    @Override
+    public void updateMessage(String message) {
+        monitorText += message + "\n";
+        mScrollView.smoothScrollTo(0, mTextStatus.getBottom());
+        mTextStatus.setText(monitorText);
         mScrollView.post(new Runnable() {
             @Override
             public void run() {
@@ -68,302 +362,5 @@ public class SelectBtFragment extends Fragment {
             }
         });
 
-
     }
-
-
-/*
-    public void sppMessage(String message) {
-        sendSppMessage(message);
-    }
-
-    private void sendSppMessage(String message) {
-        service.write(message);
-        resetI2dpCounter();
-    }
-
-    private void askAll() {
-        sendSppMessage("ALL ?\r");
-        questionPending = QUESTION_ALL;
-    }
-
-    private void askForcedMono() {
-        sendSppMessage("MON ?\r");
-        questionPending = QUESTION_MON;
-    }
-
-    private void writeOnOffState(boolean onOff) {
-        if (onOff) 	sendSppMessage("STB ON\r");
-        else 		sendSppMessage("STB OFF\r");
-    }
-
-    private void writeChannelState(int channel) {
-        if (channel == BT_CHANNEL) 	sendSppMessage("CHN BT\r");
-        else 						sendSppMessage("CHN FM\r");
-    }
-
-    private void writeVolumeFMState(int volumeFM) {
-        sendSppMessage("VOL " + String.valueOf(volumeFM) +"\r");
-    }
-
-    // TODO RE-CHECK
-    public class MessageExtractor {
-        private String message;
-
-        public MessageExtractor(String m) {
-            message = m;
-        }
-
-        public String getStringFromMessage() {
-            if (message.isEmpty()) return "";
-            String arr[] = message.trim().split(" ", 2);
-            if(arr.length==1)
-                message="";
-            else
-                message = arr[1];
-            return arr[0];
-        }
-
-        public String getIdentifierFromMessage() {
-            if (message.isEmpty()) return "";   // first "
-            String arr[] = message.trim().split("\"", 2);
-            message = arr[1];
-            if (message.isEmpty()) return "";	// second "
-            arr = message.split("\"", 2);
-            message = arr[1];
-            return arr[0];
-        }
-
-        public String getRDSFromMessage() {
-            int len = message.length();
-            String RDS;
-            if (len == 0) return "";
-            if (len>8) {
-                RDS = message.substring(0, 8);
-                message = message.substring(8, message.length());
-            } else {
-                RDS = message;
-                message="";
-            }
-
-            return RDS;
-        }
-
-        public void removeCR() {
-            if (message.length()>0)
-                message = message.substring(0, message.length()-1);
-        }
-
-    }
-
-
-    private void interpreter(String m) {
-        Log.e(TAG,"Interpreter "+m);
-        MessageExtractor messageExtractor = new MessageExtractor(m);
-
-        String header = messageExtractor.getStringFromMessage();
-        if (header.equals("RDS"))
-            selectBtState.updateRds(messageExtractor.getRDSFromMessage());
-        else if (header.equals("FMS"))
-            selectBtState.updateFrequency(messageExtractor.getStringFromMessage());
-        else {
-            messageExtractor = new MessageExtractor(m);
-            switch (questionPending) {
-                case QUESTION_ALL:
-
-                    String password = messageExtractor.getStringFromMessage();
-                    selectBtState.updateName(messageExtractor.getIdentifierFromMessage());
-
-                    selectBtState.updateOnOff(messageExtractor.getStringFromMessage());
-
-                    String standByMasterSettings = messageExtractor.getStringFromMessage();
-                    String standBySlaveSettings = messageExtractor.getStringFromMessage();
-
-                    String autoPowerMaster = messageExtractor.getStringFromMessage();
-                    String autoPowerSlave = messageExtractor.getStringFromMessage();
-                    String autoPowerVolume = messageExtractor.getStringFromMessage();
-                    String autoPowerFM = messageExtractor.getStringFromMessage();
-                    String autoPowerEQ = messageExtractor.getStringFromMessage();
-
-                    selectBtState.updateChannel(messageExtractor.getStringFromMessage());
-
-                    selectBtState.updateFrequency(messageExtractor.getStringFromMessage());
-
-                    selectBtState.updateRds(messageExtractor.getRDSFromMessage());
-
-                    String tunerSensitivity = messageExtractor.getStringFromMessage();
-                    String equalizationMode = messageExtractor.getStringFromMessage();
-
-
-                    selectBtState.updateVolumeFM(messageExtractor.getStringFromMessage());
-                    String keepFmOn = messageExtractor.message;
-                    questionPending = NO_QUESTION;
-                    askForcedMono();
-
-                    break;
-
-                case QUESTION_MON:
-                    messageExtractor.removeCR();
-                    selectBtState.updateForceMono(messageExtractor.message);
-                    questionPending = NO_QUESTION;
-                    break;
-
-                default:
-                    questionPending = NO_QUESTION;
-            }
-
-        }
-
-
-    }
-
-    private class SelectBtState {
-        public boolean onOff;
-        public int channel;
-        public int volumeFM;
-        public int volumeBT;
-        public String name;
-        public String frequency;
-        public String rds;
-        public String songName;
-
-        public static final int MAX_VOLUME_FM = 15;
-
-        private Context mContext;
-
-
-        public SelectBtState(Context context) {
-            onOff = false;
-            channel = FM_CHANNEL;
-            volumeBT = 0;
-            volumeFM = 0;
-            frequency = "87.5";
-            songName = "";
-            rds = "";
-            mContext = context;
-        }
-
-        public void updateName(String n) {
-            name = n;
-            nameText.setText(name);
-        }
-
-
-        public void updateOnOff(String onOffString) {
-            if (onOffString.equals("OFF")) {
-                mainButton.setBackground(ContextCompat.getDrawable(mContext, R.drawable.power_off_selector));
-                volumeSeekBar.setVisibility(View.INVISIBLE);
-                windowLayout.setVisibility(View.INVISIBLE);
-                onOff = false;
-                changeStateI2dp(false);
-            }
-            else {
-                onOff = true;
-                mainButton.setBackground(ContextCompat.getDrawable(mContext, R.drawable.power_on_selector));
-                volumeSeekBar.setVisibility(View.VISIBLE);
-                windowLayout.setVisibility(View.VISIBLE);
-                if (channel == BT_CHANNEL)
-                    changeStateI2dp(true);
-                else
-                    changeStateI2dp(false);
-            }
-
-        }
-
-        public void switchOnOff() {
-            setOnOff(!onOff);
-        }
-
-        public void setOnOff(boolean on) {
-            onOff = on;
-            writeOnOffState(onOff);
-            if (onOff){
-                mainButton.setBackground(ContextCompat.getDrawable(mContext, R.drawable.power_on_selector));
-                volumeSeekBar.setVisibility(View.VISIBLE);
-                windowLayout.setVisibility(View.VISIBLE);
-                if (channel == BT_CHANNEL)
-                    changeStateI2dp(true);
-                else
-                    changeStateI2dp(false);
-            } else  {
-                mainButton.setBackground(ContextCompat.getDrawable(mContext, R.drawable.power_off_selector));
-                volumeSeekBar.setVisibility(View.INVISIBLE);
-                windowLayout.setVisibility(View.INVISIBLE);
-                changeStateI2dp(onOff);
-            }
-        }
-
-        public void updateChannel(String channelString) {
-
-            if (channelString.equals("BT")) {
-                channel = BT_CHANNEL;
-                mPager.setCurrentItem(1, false);
-                ((BtFragment)mAdapter.getItem(1)).setSongName(songName);
-                changeStateI2dp(onOff);
-            } else {
-                channel = FM_CHANNEL;
-                mPager.setCurrentItem(0, false);
-                ((FmFragment)mAdapter.getItem(0)).setFrequency(frequency);
-                changeStateI2dp(false);
-            }
-        }
-
-        public void setChannel(int numChannel) {
-            writeChannelState(numChannel);
-            channel = numChannel;
-            if (numChannel == BT_CHANNEL) {
-                ((BtFragment)mAdapter.getItem(1)).setSongName(songName);
-                changeStateI2dp(onOff);
-            } else {
-                changeStateI2dp(false);
-                ((FmFragment)mAdapter.getItem(0)).setFrequency(frequency);
-            }
-        }
-
-        public void updateVolumeFM(String volumeString) {
-//           	final AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-            volumeFM = Integer.parseInt(volumeString);
-            if (channel == FM_CHANNEL) {
-
-                volumeSeekBar.setProgress(volumeFM);
-            }
-        }
-
-        public void setVolumeFM(int volume) {
-            volumeFM = volume;
-            writeVolumeFMState(volumeFM);
-        }
-
-        public void updateFrequency(String frequencyString) {
-            frequency = frequencyString;
-            if (mPager.getCurrentItem()==0) {
-                ((FmFragment)mAdapter.getItem(0)).setFrequency(frequency);
-            }
-        }
-
-        public void updateRds(String rdsString) {
-            rds = rdsString;
-            if (mPager.getCurrentItem()==0) {
-                ((FmFragment)mAdapter.getItem(0)).setRDS(rds);
-            }
-        }
-
-        public void updateTrackName(String name) {
-            songName = name;
-            if (mPager.getCurrentItem()==1) {
-                ((BtFragment)mAdapter.getItem(1)).setSongName(songName);
-            }
-        }
-
-        public void updateForceMono(String state) {
-            if (state.equals("OFF")) {
-                ((FmFragment)mAdapter.getItem(0)).setStereo(true);
-            } else {
-                ((FmFragment)mAdapter.getItem(0)).setStereo(false);
-            }
-        }
-
-
-    }*/
-
 }
