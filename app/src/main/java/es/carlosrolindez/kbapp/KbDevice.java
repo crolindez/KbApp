@@ -5,9 +5,6 @@ import android.bluetooth.BluetoothDevice;
 import es.carlosrolindez.btcomm.BtDevice;
 
 
-/**
- * Created by Carlos on 21/05/2017.
- */
 
 public class KbDevice extends BtDevice {
     //  BT device type
@@ -29,8 +26,8 @@ public class KbDevice extends BtDevice {
 
 
     protected final int deviceType;
-    protected boolean connectionInProcess;
-    protected boolean sppConnected;
+    private boolean connectionInProcess;
+    private boolean sppConnected;
 
     public KbDevice(String name, BluetoothDevice device) {
         super(name,device);

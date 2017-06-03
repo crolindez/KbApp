@@ -30,7 +30,7 @@ public abstract class RfCommManager<TypeRfSocket> {
 
     private InputStream iStream;
     private OutputStream oStream;
-    BlockingQueue<String> mMessageQueue;
+    private BlockingQueue<String> mMessageQueue;
     private final int QUEUE_CAPACITY = 5;
 
     private final LocalBroadcastManager mLocalBroadcastManager;

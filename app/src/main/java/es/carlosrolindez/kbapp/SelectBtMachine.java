@@ -2,10 +2,8 @@ package es.carlosrolindez.kbapp;
 
 import android.os.Handler;
 
-/**
- * Created by Carlos on 02/06/2017.
- */
 // TODO implements parcelable
+
 
 public class SelectBtMachine {
 

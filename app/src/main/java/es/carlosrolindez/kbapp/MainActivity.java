@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
     private LocalBroadcastManager mLocalBroadcastManager;
 
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(RfCommManager.STARTED)) {

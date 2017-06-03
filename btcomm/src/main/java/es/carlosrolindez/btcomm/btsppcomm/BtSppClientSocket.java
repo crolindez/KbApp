@@ -11,7 +11,7 @@ import es.carlosrolindez.rfcomm.RfClientSocket;
 
 
 public class BtSppClientSocket extends RfClientSocket<BluetoothSocket,BluetoothDevice> {
-    private static String TAG = "BtSppClientSocket";
+    private static final String TAG = "BtSppClientSocket";
 
     public BtSppClientSocket(BtSppCommManager service, BluetoothDevice device) {
         super(service, device);
