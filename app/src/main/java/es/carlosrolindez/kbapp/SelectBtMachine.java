@@ -1,6 +1,7 @@
 package es.carlosrolindez.kbapp;
 
 import android.os.Handler;
+import android.view.View;
 
 // TODO implements parcelable
 
@@ -27,8 +28,7 @@ public class SelectBtMachine {
     public int volumeFM;
  //   public int volumeBT;
     public String name;
-    public String frequency;
-    public String rds;
+    public FmStation fmStation;
  //   public String songName;
     public boolean forcedMono;
 
@@ -47,8 +47,9 @@ public class SelectBtMachine {
         void updateOnOff(boolean onOff);
         void updateChannel();
         void updateVolume(int volume);
-        void updateFrequency(String frequencyString);
-        void updateRds(String rdsString);
+        void updateFmStation(FmStation station);
+//        void updateFrequency(String frequencyString);
+//        void updateRds(String rdsString);
 //        void updateTrackName(String name);
         void updateForceMono(boolean forced);
         void updateMessage(String message);
@@ -64,8 +65,7 @@ public class SelectBtMachine {
         channel = BT_CHANNEL;
         volumeFM = MAX_VOLUME_FM;
         name = "SelectBtMachine";
-        frequency="87.5";
-        rds="";
+        fmStation = new FmStation();
         forcedMono = false;
 
         questionPending = NO_QUESTION;
@@ -96,14 +96,25 @@ public class SelectBtMachine {
     }
 
     public void setFmFrequency(String frequency) {
-        this.frequency = frequency;
+        fmStation.setFrequency(frequency);
         writeFMFrequency(frequency);
     }
 
     public void setForcedMono(boolean forced) {
-        forcedMono = forced;
+        fmStation.setForcedMono(forced);
         writeForcedMono(forced);
     }
+
+    public void scanFmUp() {
+        writeScanUp();
+    }
+
+    public void scanFmDown() {
+        writeScanDown();
+    }
+
+
+
 
     //**********************************************
     // Access to BT Spp by means of sendSppMessage
@@ -166,7 +177,15 @@ public class SelectBtMachine {
         }
     }
 
+    private void writeScanUp() {
+        mSppComm.sendSppMessage("SCN UP\r");
+        if (mSelectBtInterface!=null)  mSelectBtInterface.updateMessage("<< SCN UP");
+    }
 
+    private void writeScanDown() {
+        mSppComm.sendSppMessage("SCN DOWN\r");
+        if (mSelectBtInterface!=null)  mSelectBtInterface.updateMessage("<< SCN DOWN");
+    }
 
     //**********************************************
     // Interpreter of Bt Spp Message.
@@ -179,12 +198,12 @@ public class SelectBtMachine {
 
         String header = messageExtractor.getStringFromMessage();
         if (header.equals("RDS")) {
-            SelectBtMachine.this.rds = messageExtractor.getRDSFromMessage();
-            if (mSelectBtInterface!=null)  mSelectBtInterface.updateRds(rds);
+            SelectBtMachine.this.fmStation.setName(messageExtractor.getRDSFromMessage());
+            if (mSelectBtInterface!=null)  mSelectBtInterface.updateFmStation(fmStation);
         }
         else if (header.equals("FMS")) {
-            SelectBtMachine.this.frequency = messageExtractor.getStringFromMessage();
-            if (mSelectBtInterface!=null)  mSelectBtInterface.updateFrequency(frequency);
+            SelectBtMachine.this.fmStation.setFrequency(messageExtractor.getStringFromMessage());
+            if (mSelectBtInterface!=null)  mSelectBtInterface.updateFmStation(fmStation);
         }
         else {
             messageExtractor = new MessageExtractor(m);
@@ -216,9 +235,10 @@ public class SelectBtMachine {
                         channel = FM_CHANNEL;
                     }
 
-                    frequency = messageExtractor.getStringFromMessage();
+                    SelectBtMachine.this.fmStation.setFrequency(messageExtractor.getStringFromMessage());
 
-                    rds = messageExtractor.getRDSFromMessage();
+
+                    SelectBtMachine.this.fmStation.setName(messageExtractor.getRDSFromMessage());
 
                     String tunerSensitivity = messageExtractor.getStringFromMessage();
                     String equalizationMode = messageExtractor.getStringFromMessage();
@@ -231,8 +251,7 @@ public class SelectBtMachine {
                         mSelectBtInterface.updateName(name);
                         mSelectBtInterface.updateOnOff(onOff);
                         mSelectBtInterface.updateChannel();
-                        mSelectBtInterface.updateFrequency(frequency);
-                        mSelectBtInterface.updateRds(rds);
+                        mSelectBtInterface.updateFmStation(fmStation);
                         mSelectBtInterface.updateVolume(volumeFM);
                     }
 

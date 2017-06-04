@@ -7,12 +7,14 @@ import android.os.Bundle;
 import android.support.transition.TransitionManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Switch;
@@ -31,7 +33,10 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     private Switch onOffSwitch;
 
     private Button fmButton;
-    private LinearLayout mFmLayout;
+    private RelativeLayout mFmLayout;
+    private TextView mFmStation;
+    private Button mButtonUp;
+    private Button mButtonDown;
 
     private Button dabButton;
     private LinearLayout mDabLayout;
@@ -87,7 +92,13 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         });
 
         fmButton = (Button) activity.findViewById(R.id.fm_button);
-        mFmLayout = (LinearLayout) activity.findViewById(R.id.layout_fm_button);
+        mFmLayout = (RelativeLayout) activity.findViewById(R.id.layout_fm_button);
+        mFmStation = (TextView) activity.findViewById(R.id.fm_station);
+        mButtonUp = (Button) activity.findViewById(R.id.button_up);
+
+
+        mButtonDown = (Button) activity.findViewById(R.id.button_down);
+
 
         dabButton = (Button) activity.findViewById(R.id.dab_button);
         mDabLayout = (LinearLayout) activity.findViewById(R.id.layout_dab_button);
@@ -162,6 +173,38 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
             public void onClick(View v) {
                 monitorActive = true;
                 showLayout ();
+            }
+        });
+
+        mButtonUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSelectBtMachine.setFmFrequency(mSelectBtMachine.fmStation.stepUpFrequency());
+                updateFmStation(mSelectBtMachine.fmStation);
+            }
+        });
+
+        mButtonUp.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                mSelectBtMachine.scanFmUp();
+                return true;
+            }
+        });
+
+        mButtonDown.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSelectBtMachine.setFmFrequency(mSelectBtMachine.fmStation.stepDownFrequency());
+                updateFmStation(mSelectBtMachine.fmStation);
+            }
+        });
+
+        mButtonDown.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                mSelectBtMachine.scanFmDown();
+                return true;
             }
         });
 
@@ -335,14 +378,11 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     }
 
     @Override
-    public void updateFrequency(String frequencyString) {
-
+    public void updateFmStation(FmStation station) {
+        Log.e(TAG,station.showName());
+        mFmStation.setText(station.showName());
     }
 
-    @Override
-    public void updateRds(String rdsString) {
-
-    }
 
     @Override
     public void updateForceMono(boolean forced) {

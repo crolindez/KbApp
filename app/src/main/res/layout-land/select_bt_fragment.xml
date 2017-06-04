@@ -55,16 +55,47 @@
             android:layout_height="match_parent"
             android:text="F M" />
 
-        <LinearLayout
+
+        <RelativeLayout
             android:id="@+id/layout_fm_button"
-            android:animateLayoutChanges="true"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="0"
-            android:orientation="vertical">
+            android:animateLayoutChanges="true">
+
+            <TextView
+                android:id="@+id/fm_station"
+                android:layout_width="180dp"
+                android:layout_height="96dp"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:gravity="center_vertical|center_horizontal"
+                android:text=""
+                android:textColor="@color/colorAccent"
+                android:textSize="24sp" />
+
+            <Button
+                android:id="@+id/button_up"
+                style="@style/Widget.AppCompat.Button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/ic_arrow"
+                android:layout_alignTop="@+id/fm_station"
+                android:layout_toStartOf="@+id/fm_station" />
+
+            <Button
+                android:id="@+id/button_down"
+                style="@style/Widget.AppCompat.Button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/ic_arrow"
+                android:rotation="180"
+                android:layout_alignBottom="@+id/fm_station"
+                android:layout_toStartOf="@+id/fm_station" />
 
 
-        </LinearLayout>
+        </RelativeLayout>
+
 
         <Button
             android:id="@+id/dab_button"
