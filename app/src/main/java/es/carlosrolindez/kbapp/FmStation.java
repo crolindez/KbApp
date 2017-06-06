@@ -1,10 +1,5 @@
 package es.carlosrolindez.kbapp;
 
-import android.util.Log;
-
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
-
 public class FmStation {
     private String name;
     private String frequency;
@@ -33,12 +28,24 @@ public class FmStation {
     }
 
     public void setName(String newName) {
-        Log.e("setName",newName);
         name = newName;
     }
 
+    public String getFrequency() {
+        return frequency;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void copyStation(FmStation station) {
+        this.frequency = station.getFrequency();
+        this.setName(station.getName());
+        this.setForcedMono(station.isForcedMono());
+    }
+
     public void setFrequency(String newFreq) {
-        Log.e("setFreq",newFreq);
         if (frequency.equals(newFreq)) return;
         frequency = newFreq;
         name = null;

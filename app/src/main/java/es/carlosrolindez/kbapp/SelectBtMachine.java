@@ -1,10 +1,6 @@
 package es.carlosrolindez.kbapp;
 
 import android.os.Handler;
-import android.view.View;
-
-// TODO implements parcelable
-
 
 public class SelectBtMachine {
 
@@ -62,8 +58,8 @@ public class SelectBtMachine {
 
     public SelectBtMachine(SppComm sppComm) {
         onOff = false;
-        channel = BT_CHANNEL;
-        volumeFM = MAX_VOLUME_FM;
+        channel = NO_CHANNEL;
+        volumeFM = MAX_VOLUME_FM/2;
         name = "SelectBtMachine";
         fmStation = new FmStation();
         forcedMono = false;

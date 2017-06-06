@@ -2,6 +2,7 @@ package es.carlosrolindez.kbapp;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.transition.TransitionManager;
@@ -21,8 +22,11 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 
+// TODO implement some mechanism preventing when question ALL ? fails
+
 public class SelectBtFragment extends Fragment implements SelectBtMachine.SelectBtInterface {
-    public final static String TAG = "SelectBtFragment";
+    private final static String TAG = "SelectBtFragment";
+    private final static int NUM_FM_MEMORIES = 6;
 
     private SelectBtMachine mSelectBtMachine;
 
@@ -37,7 +41,7 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     private TextView mFmStation;
     private Button mButtonUp;
     private Button mButtonDown;
-
+    private Button[] mButtonMemFm;
     private Button dabButton;
     private LinearLayout mDabLayout;
 
@@ -53,7 +57,9 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
 
     private boolean monitorActive;
 
+    private FmStation[] fmMemories;
 
+    private SharedPreferences preferences;
 
 
     public static SelectBtFragment newInstance(SelectBtMachine machine) {
@@ -73,10 +79,15 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
+    public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
         final Activity activity = getActivity();
+        preferences = activity.getSharedPreferences("FM_MEMORIES", Context.MODE_PRIVATE);
+        fmMemories = new FmStation[NUM_FM_MEMORIES];
+        for (int i=0;i<NUM_FM_MEMORIES;i++) {
+            fmMemories[i]=loadFmMemory(i);
+        }
 
         selectBtLayout = (LinearLayout) activity.findViewById(R.id.selectBt);
         monitorActive = false;
@@ -95,10 +106,15 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         mFmLayout = (RelativeLayout) activity.findViewById(R.id.layout_fm_button);
         mFmStation = (TextView) activity.findViewById(R.id.fm_station);
         mButtonUp = (Button) activity.findViewById(R.id.button_up);
-
-
         mButtonDown = (Button) activity.findViewById(R.id.button_down);
-
+        mButtonMemFm = new Button[NUM_FM_MEMORIES];
+        mButtonMemFm[0] = (Button) activity.findViewById(R.id.button_mem_fm_1);
+        mButtonMemFm[1] = (Button) activity.findViewById(R.id.button_mem_fm_2);
+        mButtonMemFm[2] = (Button) activity.findViewById(R.id.button_mem_fm_3);
+        mButtonMemFm[3] = (Button) activity.findViewById(R.id.button_mem_fm_4);
+        mButtonMemFm[4] = (Button) activity.findViewById(R.id.button_mem_fm_5);
+        mButtonMemFm[5] = (Button) activity.findViewById(R.id.button_mem_fm_6);
+        showFmMemories();
 
         dabButton = (Button) activity.findViewById(R.id.dab_button);
         mDabLayout = (LinearLayout) activity.findViewById(R.id.layout_dab_button);
@@ -208,6 +224,33 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
             }
         });
 
+        for (int i=0;i<NUM_FM_MEMORIES;i++) {
+            final int memoryCounter = i;
+            mButtonMemFm[memoryCounter].setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (fmMemories[memoryCounter] == null) return;
+                    mSelectBtMachine.setFmFrequency(fmMemories[memoryCounter].getFrequency());
+                    mSelectBtMachine.fmStation.setName(fmMemories[memoryCounter].getName());
+                    updateFmStation(mSelectBtMachine.fmStation);
+                }
+            });
+        }
+
+        for (int i=0;i<NUM_FM_MEMORIES;i++) {
+            final int memoryCounter=i;
+            mButtonMemFm[memoryCounter].setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (fmMemories[memoryCounter] == null) fmMemories[memoryCounter] = new FmStation();
+                    fmMemories[memoryCounter].copyStation(mSelectBtMachine.fmStation);
+                    saveFmMemory(fmMemories[memoryCounter],memoryCounter);
+                    showFmMemories();
+                    return true;
+                }
+            });
+        }
+
     }
 
     @Override
@@ -221,6 +264,39 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     public void onPause() {
         super.onPause();
         mSelectBtMachine.setSelectBtInterface(null);
+    }
+
+    private void saveFmMemory(FmStation station, int numMemory) {
+        SharedPreferences.Editor edit = preferences.edit();
+        if (station!=null) {
+            edit.putString("Frequency"+numMemory, station.getFrequency());
+            if (station.getName()!=null)
+                edit.putString("RDS"+numMemory, station.getName());
+            else
+                edit.putString("RDS"+numMemory,"");
+            edit.putBoolean("ForcedMono"+numMemory,station.isForcedMono());
+
+        }
+        else {
+            edit.putString("Frequency"+numMemory, "");
+            edit.putString("RDS"+numMemory,"");
+            edit.putBoolean("ForcedMono"+numMemory,false);
+        }
+
+        edit.apply();
+    }
+
+    private FmStation loadFmMemory(int numMemory) {
+        FmStation station=null;
+        String freq = preferences.getString("Frequency" + numMemory, "");
+        if (!freq.equals("")) {
+            station = new FmStation(freq);
+            String RDS = preferences.getString("RDS" + numMemory, "");
+            if (!RDS.equals(""))
+                station.setName(RDS);
+            station.setForcedMono(preferences.getBoolean("ForcedMono" + numMemory, false));
+        }
+        return station;
     }
 
     //*************************************************************
@@ -261,12 +337,19 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         paramsBtLayout.weight = 0;
         paramsScrollLayout.weight = 0;
 
+        for (int i=0;i<NUM_FM_MEMORIES; i++) {
+            mButtonMemFm[i].setVisibility(View.INVISIBLE);
+        }
+
         if (monitorActive)
             paramsScrollLayout.weight = 1;
         else {
             if (mSelectBtMachine.onOff) {
                 switch (mSelectBtMachine.channel) {
                     case SelectBtMachine.FM_CHANNEL:
+                        for (int i=0;i<NUM_FM_MEMORIES; i++) {
+                            mButtonMemFm[i].setVisibility(View.VISIBLE);
+                        }
                         paramsFmLayout.weight = 1;
                         break;
                     case SelectBtMachine.DAB_CHANNEL:
@@ -350,6 +433,14 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
 
     }
 
+    private void showFmMemories() {
+        for (int i=0;i<NUM_FM_MEMORIES;i++) {
+            if (fmMemories[i] == null) mButtonMemFm[i].setText("---.-");
+            else mButtonMemFm[i].setText(fmMemories[i].showName());
+        }
+
+    }
+
     //*************************************************************
     //   Implementation of SelectBt Interface
     //*************************************************************
@@ -381,6 +472,15 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     public void updateFmStation(FmStation station) {
         Log.e(TAG,station.showName());
         mFmStation.setText(station.showName());
+        for (int i=0; i<NUM_FM_MEMORIES; i++) {
+            if (fmMemories[i]!=null)
+                if (fmMemories[i].getFrequency().equals(station.getFrequency()))
+                    if (station.getName()!=null) {
+                        fmMemories[i].setName(station.getName());
+                        mButtonMemFm[i].setText(fmMemories[i].showName());
+                        saveFmMemory(fmMemories[i],i);
+                    }
+        }
     }
 
 
