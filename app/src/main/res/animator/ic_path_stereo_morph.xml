@@ -4,6 +4,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:duration="@android:integer/config_longAnimTime"
     android:propertyName="pathData"
-    android:valueFrom="@string/bt_logo_vector_path"
-    android:valueTo="@string/select_play_vector_path"
+    android:valueFrom="@string/mono"
+    android:valueTo="@string/stereo"
     android:valueType="pathType"/>

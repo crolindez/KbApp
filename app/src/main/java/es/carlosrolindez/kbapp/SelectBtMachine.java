@@ -26,7 +26,7 @@ public class SelectBtMachine {
     public String name;
     public FmStation fmStation;
  //   public String songName;
-    public boolean forcedMono;
+//    public boolean forcedMono;
 
     private int questionPending;
 
@@ -62,7 +62,6 @@ public class SelectBtMachine {
         volumeFM = MAX_VOLUME_FM/2;
         name = "SelectBtMachine";
         fmStation = new FmStation();
-        forcedMono = false;
 
         questionPending = NO_QUESTION;
 
@@ -268,11 +267,13 @@ public class SelectBtMachine {
                     messageExtractor.removeCR();
                     String forcedMonoString = messageExtractor.message;
                     if (forcedMonoString.equals("ON")) {
-                        forcedMono = true;
+                        SelectBtMachine.this.fmStation.setForcedMono(true);
+                        if (mSelectBtInterface!=null) mSelectBtInterface.updateForceMono(true);
                     } else {
-                        forcedMono = false;
+                        SelectBtMachine.this.fmStation.setForcedMono(false);
+                        if (mSelectBtInterface!=null) mSelectBtInterface.updateForceMono(false);
                     }
-                    if (mSelectBtInterface!=null) mSelectBtInterface.updateForceMono(forcedMono);
+
 
                     questionPending = NO_QUESTION;
                     break;

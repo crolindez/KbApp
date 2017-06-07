@@ -3,6 +3,7 @@ package es.carlosrolindez.kbapp;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.drawable.AnimatedVectorDrawable;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.transition.TransitionManager;
@@ -23,6 +24,10 @@ import android.widget.TextView;
 
 
 // TODO implement some mechanism preventing when question ALL ? fails
+// TODO Sometimes RDS arrives to late.
+// TODO Volume Seek bar shows FM volume if starts at BT
+// TODO improve headers following tendency
+
 
 public class SelectBtFragment extends Fragment implements SelectBtMachine.SelectBtInterface {
     private final static String TAG = "SelectBtFragment";
@@ -41,6 +46,8 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     private TextView mFmStation;
     private Button mButtonUp;
     private Button mButtonDown;
+    private Button mButtonForcedMono;
+    private boolean forcedMonoState;
     private Button[] mButtonMemFm;
     private Button dabButton;
     private LinearLayout mDabLayout;
@@ -107,6 +114,9 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         mFmStation = (TextView) activity.findViewById(R.id.fm_station);
         mButtonUp = (Button) activity.findViewById(R.id.button_up);
         mButtonDown = (Button) activity.findViewById(R.id.button_down);
+        mButtonForcedMono = (Button) activity.findViewById(R.id.button_forced_mono);
+        forcedMonoState = true;
+
         mButtonMemFm = new Button[NUM_FM_MEMORIES];
         mButtonMemFm[0] = (Button) activity.findViewById(R.id.button_mem_fm_1);
         mButtonMemFm[1] = (Button) activity.findViewById(R.id.button_mem_fm_2);
@@ -250,6 +260,14 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
                 }
             });
         }
+
+        mButtonForcedMono.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSelectBtMachine.setForcedMono(!forcedMonoState);
+                updateForceMono(!forcedMonoState);
+            }
+        });
 
     }
 
@@ -486,6 +504,22 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
 
     @Override
     public void updateForceMono(boolean forced) {
+        if (forced == forcedMonoState) return;
+        forcedMonoState = forced;
+        if (forcedMonoState) {
+            Log.e(TAG,"To Mono State");
+            AnimatedVectorDrawable animationPlayForcedMono= (AnimatedVectorDrawable) getActivity().getDrawable(R.drawable.animated_forced_mono);
+            mButtonForcedMono.setBackground(animationPlayForcedMono);
+            if (animationPlayForcedMono != null) animationPlayForcedMono.start();
+
+        } else {
+            Log.e(TAG,"To Stereo State");
+            AnimatedVectorDrawable animationPlayStereo= (AnimatedVectorDrawable) getActivity().getDrawable(R.drawable.animated_stereo);
+            mButtonForcedMono.setBackground(animationPlayStereo);
+            if (animationPlayStereo != null) animationPlayStereo.start();
+
+        }
+
 
 
     }

@@ -90,6 +90,17 @@
             android:layout_toStartOf="@id/fm_station" />
 
         <Button
+            android:id="@+id/button_forced_mono"
+            style="@style/Widget.AppCompat.Button"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:padding="5dp"
+            android:drawablePadding="5dp"
+            android:background="@drawable/ic_mono"
+            android:layout_alignTop="@+id/fm_station"
+            android:layout_toEndOf="@+id/fm_station" />
+
+        <Button
             android:id="@+id/button_mem_fm_5"
             android:layout_width="90dp"
             android:layout_height="40dp"

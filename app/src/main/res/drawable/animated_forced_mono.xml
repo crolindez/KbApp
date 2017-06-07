@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <animated-vector
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:drawable="@drawable/ic_select_bt">
+    android:drawable="@drawable/ic_mono">
     <target
-        android:name="select_line"
-        android:animation="@animator/ic_path_select_bt_morph"/>
+        android:name="mono_line"
+        android:animation="@animator/ic_path_forced_mono_morph"/>
 </animated-vector>
