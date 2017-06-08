@@ -3,6 +3,7 @@ package es.carlosrolindez.kbapp;
 import android.os.Handler;
 
 public class SelectBtMachine {
+    private static final String TAG = "SelectBtMachine";
 
     public static final int NO_CHANNEL = 0;
     public static final int FM_CHANNEL = 1;
@@ -42,7 +43,7 @@ public class SelectBtMachine {
         void updateName(String name);
         void updateOnOff(boolean onOff);
         void updateChannel();
-        void updateVolume(int volume);
+        void updateVolume();
         void updateFmStation(FmStation station);
 //        void updateFrequency(String frequencyString);
 //        void updateRds(String rdsString);
@@ -55,7 +56,9 @@ public class SelectBtMachine {
         mSelectBtInterface = selectBtInterface;
     }
 
-
+    public boolean isSetSelectInterface() {
+        return (mSelectBtInterface!=null);
+    }
     public SelectBtMachine(SppComm sppComm) {
         onOff = false;
         channel = NO_CHANNEL;
@@ -247,7 +250,7 @@ public class SelectBtMachine {
                         mSelectBtInterface.updateOnOff(onOff);
                         mSelectBtInterface.updateChannel();
                         mSelectBtInterface.updateFmStation(fmStation);
-                        mSelectBtInterface.updateVolume(volumeFM);
+                        mSelectBtInterface.updateVolume();
                     }
 
                     questionPending = NO_QUESTION;

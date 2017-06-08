@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.support.transition.TransitionManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,9 +22,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 
-// TODO implement some mechanism preventing when question ALL ? fails
 // TODO Sometimes RDS arrives to late.
-// TODO Volume Seek bar shows FM volume if starts at BT
 // TODO improve headers following tendency
 
 
@@ -323,10 +320,11 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
 
 
     private void switchOnOff(boolean state) {
-        if (mSelectBtMachine.onOff != state) {
-            mSelectBtMachine.setOnOff(state);
-            updateOnOff(mSelectBtMachine.onOff);
-        }
+        if (mSelectBtMachine.isSetSelectInterface())
+            if (mSelectBtMachine.onOff != state) {
+                mSelectBtMachine.setOnOff(state);
+                updateOnOff(mSelectBtMachine.onOff);
+            }
     }
 
     private void selectChannel(int channel) {
@@ -482,13 +480,19 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     }
 
     @Override
-    public void updateVolume(int volume) {
-        volumeBar.setProgress(volume);
+    public void updateVolume() {
+        if (mSelectBtMachine.channel==SelectBtMachine.BT_CHANNEL) {
+            AudioManager am = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
+            volumeBar.setProgress(am.getStreamVolume(AudioManager.STREAM_MUSIC));
+        } else if (mSelectBtMachine.channel==SelectBtMachine.FM_CHANNEL){
+            volumeBar.setProgress(mSelectBtMachine.volumeFM);
+        }
+
+
     }
 
     @Override
     public void updateFmStation(FmStation station) {
-        Log.e(TAG,station.showName());
         mFmStation.setText(station.showName());
         for (int i=0; i<NUM_FM_MEMORIES; i++) {
             if (fmMemories[i]!=null)
@@ -507,17 +511,14 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         if (forced == forcedMonoState) return;
         forcedMonoState = forced;
         if (forcedMonoState) {
-            Log.e(TAG,"To Mono State");
             AnimatedVectorDrawable animationPlayForcedMono= (AnimatedVectorDrawable) getActivity().getDrawable(R.drawable.animated_forced_mono);
             mButtonForcedMono.setBackground(animationPlayForcedMono);
             if (animationPlayForcedMono != null) animationPlayForcedMono.start();
 
         } else {
-            Log.e(TAG,"To Stereo State");
             AnimatedVectorDrawable animationPlayStereo= (AnimatedVectorDrawable) getActivity().getDrawable(R.drawable.animated_stereo);
             mButtonForcedMono.setBackground(animationPlayStereo);
             if (animationPlayStereo != null) animationPlayStereo.start();
-
         }
 
 

@@ -316,14 +316,13 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
                         int volume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
                         if  (volume < am.getStreamMaxVolume(AudioManager.STREAM_MUSIC)) {
                             am.setStreamVolume(AudioManager.STREAM_MUSIC, volume+1,	0);
-                            mSelectBtFragment.updateVolume(volume+1);
                         }
                     } else if (mSelectBtMachine.channel==SelectBtMachine.FM_CHANNEL){
                         if  (mSelectBtMachine.volumeFM < SelectBtMachine.MAX_VOLUME_FM) {
                             mSelectBtMachine.setVolumeFM(mSelectBtMachine.volumeFM+1);
-                            mSelectBtFragment.updateVolume(mSelectBtMachine.volumeFM);
                         }
                     }
+                    mSelectBtFragment.updateVolume();
                     return true;
 
                 case KeyEvent.KEYCODE_VOLUME_DOWN:
@@ -333,14 +332,13 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
                         int volume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
                         if  (volume > 0) {
                             am.setStreamVolume(AudioManager.STREAM_MUSIC, volume-1,	0);
-                            mSelectBtFragment.updateVolume(volume-1);
                         }
                     } else if (mSelectBtMachine.channel==SelectBtMachine.FM_CHANNEL){
                         if  (mSelectBtMachine.volumeFM > 0) {
                             mSelectBtMachine.setVolumeFM(mSelectBtMachine.volumeFM-1);
-                            mSelectBtFragment.updateVolume(mSelectBtMachine.volumeFM);
                         }
                     }
+                    mSelectBtFragment.updateVolume();
                     return true;
 //                case KeyEvent.KEYCODE_BACK:
 //                    return super.dispatchKeyEvent(event);
