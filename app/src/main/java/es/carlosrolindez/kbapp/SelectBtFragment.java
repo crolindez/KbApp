@@ -23,7 +23,7 @@ import android.widget.TextView;
 
 
 // TODO Sometimes RDS arrives to late.
-// TODO improve headers following tendency
+
 
 
 public class SelectBtFragment extends Fragment implements SelectBtMachine.SelectBtInterface {
@@ -47,10 +47,10 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     private boolean forcedMonoState;
     private Button[] mButtonMemFm;
     private Button dabButton;
-    private LinearLayout mDabLayout;
+    private RelativeLayout mDabLayout;
 
     private Button btButton;
-    private LinearLayout mBtLayout;
+    private RelativeLayout mBtLayout;
 
     private Button monitorButton;
     private ScrollView mScrollView;
@@ -124,10 +124,10 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         showFmMemories();
 
         dabButton = (Button) activity.findViewById(R.id.dab_button);
-        mDabLayout = (LinearLayout) activity.findViewById(R.id.layout_dab_button);
+        mDabLayout = (RelativeLayout) activity.findViewById(R.id.layout_dab_button);
 
         btButton = (Button) activity.findViewById(R.id.bt_button);
-        mBtLayout = (LinearLayout) activity.findViewById(R.id.layout_bt_button);
+        mBtLayout = (RelativeLayout) activity.findViewById(R.id.layout_bt_button);
 
         monitorButton = (Button) activity.findViewById(R.id.monitor_button);
         mTextStatus = (TextView) activity.findViewById(R.id.text_monitor);
@@ -356,6 +356,7 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         for (int i=0;i<NUM_FM_MEMORIES; i++) {
             mButtonMemFm[i].setVisibility(View.INVISIBLE);
         }
+        mFmStation.setVisibility(View.INVISIBLE);
 
         if (monitorActive)
             paramsScrollLayout.weight = 1;
@@ -366,6 +367,7 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
                         for (int i=0;i<NUM_FM_MEMORIES; i++) {
                             mButtonMemFm[i].setVisibility(View.VISIBLE);
                         }
+                        mFmStation.setVisibility(View.VISIBLE);
                         paramsFmLayout.weight = 1;
                         break;
                     case SelectBtMachine.DAB_CHANNEL:

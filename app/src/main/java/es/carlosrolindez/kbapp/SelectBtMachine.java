@@ -2,16 +2,16 @@ package es.carlosrolindez.kbapp;
 
 import android.os.Handler;
 
-public class SelectBtMachine {
+class SelectBtMachine {
     private static final String TAG = "SelectBtMachine";
 
-    public static final int NO_CHANNEL = 0;
-    public static final int FM_CHANNEL = 1;
-    public static final int BT_CHANNEL = 2;
-    public static final int DAB_CHANNEL = 3;
-    public static final int MONITOR_CHANNEL = 10;
+    static final int NO_CHANNEL = 0;
+    static final int FM_CHANNEL = 1;
+    static final int BT_CHANNEL = 2;
+    static final int DAB_CHANNEL = 3;
+    static final int MONITOR_CHANNEL = 10;
 
-    public static final int MAX_VOLUME_FM = 15;
+    static final int MAX_VOLUME_FM = 15;
 
     private static final int NO_QUESTION = 0;
     private static final int QUESTION_ALL = 1;
@@ -20,14 +20,11 @@ public class SelectBtMachine {
     //	public static final int FREQUENCY = 4;
     private static final int QUESTION_MON = 5;
 
-    public boolean onOff;
-    public int channel;
-    public int volumeFM;
- //   public int volumeBT;
-    public String name;
-    public FmStation fmStation;
- //   public String songName;
-//    public boolean forcedMono;
+    boolean onOff;
+    int channel;
+    int volumeFM;
+    String name;
+    final FmStation fmStation;
 
     private int questionPending;
 
@@ -35,31 +32,29 @@ public class SelectBtMachine {
     private final SppComm mSppComm;
 
 
-    public interface SppComm {
+    interface SppComm {
         void sendSppMessage(String message);
     }
 
-    public interface SelectBtInterface {
+    interface SelectBtInterface {
         void updateName(String name);
         void updateOnOff(boolean onOff);
         void updateChannel();
         void updateVolume();
         void updateFmStation(FmStation station);
-//        void updateFrequency(String frequencyString);
-//        void updateRds(String rdsString);
-//        void updateTrackName(String name);
+        //        void updateTrackName(String name);
         void updateForceMono(boolean forced);
         void updateMessage(String message);
     }
 
-    public void setSelectBtInterface(SelectBtInterface selectBtInterface) {
+    void setSelectBtInterface(SelectBtInterface selectBtInterface) {
         mSelectBtInterface = selectBtInterface;
     }
 
-    public boolean isSetSelectInterface() {
+    boolean isSetSelectInterface() {
         return (mSelectBtInterface!=null);
     }
-    public SelectBtMachine(SppComm sppComm) {
+    SelectBtMachine(SppComm sppComm) {
         onOff = false;
         channel = NO_CHANNEL;
         volumeFM = MAX_VOLUME_FM/2;
@@ -77,37 +72,37 @@ public class SelectBtMachine {
     //**********************************************
     // Change of state values + update of BT device
     //**********************************************
-    public void setOnOff(boolean on) {
+    void setOnOff(boolean on) {
         onOff = on;
         writeOnOff(onOff);
     }
 
 
-    public void setChannel(int numChannel) {
+    void setChannel(int numChannel) {
         writeChannel(numChannel);
         channel = numChannel;
     }
 
-    public void setVolumeFM(int volume) {
+    void setVolumeFM(int volume) {
         volumeFM = volume;
         writeVolumeFM(volumeFM);
     }
 
-    public void setFmFrequency(String frequency) {
+    void setFmFrequency(String frequency) {
         fmStation.setFrequency(frequency);
         writeFMFrequency(frequency);
     }
 
-    public void setForcedMono(boolean forced) {
+    void setForcedMono(boolean forced) {
         fmStation.setForcedMono(forced);
         writeForcedMono(forced);
     }
 
-    public void scanFmUp() {
+    void scanFmUp() {
         writeScanUp();
     }
 
-    public void scanFmDown() {
+    void scanFmDown() {
         writeScanDown();
     }
 
@@ -118,13 +113,13 @@ public class SelectBtMachine {
     // Access to BT Spp by means of sendSppMessage
     //**********************************************
 
-    protected void askAll() {
+    void askAll() {
         mSppComm.sendSppMessage("ALL ?\r");
         if (mSelectBtInterface!=null)  mSelectBtInterface.updateMessage("<< ALL ?");
         questionPending = QUESTION_ALL;
     }
 
-    protected void askForcedMono() {
+    void askForcedMono() {
         mSppComm.sendSppMessage("MON ?\r");
         if (mSelectBtInterface!=null)  mSelectBtInterface.updateMessage("<< MON ?");
         questionPending = QUESTION_MON;
@@ -177,8 +172,9 @@ public class SelectBtMachine {
 
     private void writeScanUp() {
         mSppComm.sendSppMessage("SCN UP\r");
-        if (mSelectBtInterface!=null)  mSelectBtInterface.updateMessage("<< SCN UP");
+        if (mSelectBtInterface != null) mSelectBtInterface.updateMessage("<< SCN UP");
     }
+
 
     private void writeScanDown() {
         mSppComm.sendSppMessage("SCN DOWN\r");
@@ -190,101 +186,103 @@ public class SelectBtMachine {
     // Translates message -> changes state value -> updates view by means of SelectBtInterface
     //**********************************************
 
-    public void interpreter(String m) {
+    void interpreter(String m) {
         MessageExtractor messageExtractor = new MessageExtractor(m);
         if (mSelectBtInterface!=null)  mSelectBtInterface.updateMessage(">> " + m);
 
         String header = messageExtractor.getStringFromMessage();
-        if (header.equals("RDS")) {
-            SelectBtMachine.this.fmStation.setName(messageExtractor.getRDSFromMessage());
-            if (mSelectBtInterface!=null)  mSelectBtInterface.updateFmStation(fmStation);
-        }
-        else if (header.equals("FMS")) {
-            SelectBtMachine.this.fmStation.setFrequency(messageExtractor.getStringFromMessage());
-            if (mSelectBtInterface!=null)  mSelectBtInterface.updateFmStation(fmStation);
-        }
-        else {
-            messageExtractor = new MessageExtractor(m);
-            switch (questionPending) {
-                case QUESTION_ALL:
+        switch (header) {
+            case "RDS":
+                SelectBtMachine.this.fmStation.setName(messageExtractor.getRDSFromMessage());
+                if (mSelectBtInterface != null) mSelectBtInterface.updateFmStation(fmStation);
+                break;
+            case "FMS":
+                SelectBtMachine.this.fmStation.setFrequency(messageExtractor.getStringFromMessage());
+                if (mSelectBtInterface != null) mSelectBtInterface.updateFmStation(fmStation);
+                break;
+            default:
+                messageExtractor = new MessageExtractor(m);
+                switch (questionPending) {
+                    case QUESTION_ALL:
 
-                    String password = messageExtractor.getStringFromMessage();
+                        String password = messageExtractor.getStringFromMessage();
 
-                    name = messageExtractor.getIdentifierFromMessage();
+                        name = messageExtractor.getIdentifierFromMessage();
 
-                    String onOffString = messageExtractor.getStringFromMessage();
-                    if (onOffString.equals("OFF")) onOff = false;
-                    else onOff = true;
+                        String onOffString = messageExtractor.getStringFromMessage();
+                        onOff = !onOffString.equals("OFF");
 
-                    String standByMasterSettings = messageExtractor.getStringFromMessage();
-                    String standBySlaveSettings = messageExtractor.getStringFromMessage();
-                    String autoPowerMaster = messageExtractor.getStringFromMessage();
-                    String autoPowerSlave = messageExtractor.getStringFromMessage();
-                    String autoPowerVolume = messageExtractor.getStringFromMessage();
-                    String autoPowerFM = messageExtractor.getStringFromMessage();
-                    String autoPowerEQ = messageExtractor.getStringFromMessage();
+                        String standByMasterSettings = messageExtractor.getStringFromMessage();
+                        String standBySlaveSettings = messageExtractor.getStringFromMessage();
+                        String autoPowerMaster = messageExtractor.getStringFromMessage();
+                        String autoPowerSlave = messageExtractor.getStringFromMessage();
+                        String autoPowerVolume = messageExtractor.getStringFromMessage();
+                        String autoPowerFM = messageExtractor.getStringFromMessage();
+                        String autoPowerEQ = messageExtractor.getStringFromMessage();
 
-                    String channelString = messageExtractor.getStringFromMessage();
-                    if (channelString.equals("BT")) {
-                        channel = BT_CHANNEL;
-                    } else if (channelString.equals("DAB")) {
-                        channel = DAB_CHANNEL;
-                    } else {
-                        channel = FM_CHANNEL;
-                    }
-
-                    SelectBtMachine.this.fmStation.setFrequency(messageExtractor.getStringFromMessage());
-
-
-                    SelectBtMachine.this.fmStation.setName(messageExtractor.getRDSFromMessage());
-
-                    String tunerSensitivity = messageExtractor.getStringFromMessage();
-                    String equalizationMode = messageExtractor.getStringFromMessage();
-
-                    volumeFM = Integer.parseInt(messageExtractor.getStringFromMessage());
-
-                    String keepFmOn = messageExtractor.message;
-
-                    if (mSelectBtInterface!=null) {
-                        mSelectBtInterface.updateName(name);
-                        mSelectBtInterface.updateOnOff(onOff);
-                        mSelectBtInterface.updateChannel();
-                        mSelectBtInterface.updateFmStation(fmStation);
-                        mSelectBtInterface.updateVolume();
-                    }
-
-                    questionPending = NO_QUESTION;
-
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            askForcedMono();
+                        String channelString = messageExtractor.getStringFromMessage();
+                        if (channelString.equals("BT")) {
+                            channel = BT_CHANNEL;
+                        } else if (channelString.equals("DAB")) {
+                            channel = DAB_CHANNEL;
+                        } else {
+                            channel = FM_CHANNEL;
                         }
-                    }, 250);
+
+                        SelectBtMachine.this.fmStation.setFrequency(messageExtractor.getStringFromMessage());
 
 
+                        SelectBtMachine.this.fmStation.setName(messageExtractor.getRDSFromMessage());
 
-                    break;
+                        String tunerSensitivity = messageExtractor.getStringFromMessage();
+                        String equalizationMode = messageExtractor.getStringFromMessage();
 
-                case QUESTION_MON:
-                    messageExtractor.removeCR();
-                    String forcedMonoString = messageExtractor.message;
-                    if (forcedMonoString.equals("ON")) {
-                        SelectBtMachine.this.fmStation.setForcedMono(true);
-                        if (mSelectBtInterface!=null) mSelectBtInterface.updateForceMono(true);
-                    } else {
-                        SelectBtMachine.this.fmStation.setForcedMono(false);
-                        if (mSelectBtInterface!=null) mSelectBtInterface.updateForceMono(false);
-                    }
+                        volumeFM = Integer.parseInt(messageExtractor.getStringFromMessage());
+
+                        String keepFmOn = messageExtractor.message;
+
+                        if (mSelectBtInterface != null) {
+                            mSelectBtInterface.updateName(name);
+                            mSelectBtInterface.updateOnOff(onOff);
+                            mSelectBtInterface.updateChannel();
+                            mSelectBtInterface.updateFmStation(fmStation);
+                            mSelectBtInterface.updateVolume();
+                        }
+
+                        questionPending = NO_QUESTION;
+
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                askForcedMono();
+                            }
+                        }, 250);
 
 
-                    questionPending = NO_QUESTION;
-                    break;
+                        break;
 
-                default:
-                    questionPending = NO_QUESTION;
-            }
+                    case QUESTION_MON:
+                        messageExtractor.removeCR();
+                        String forcedMonoString = messageExtractor.message;
+                        if (forcedMonoString.equals("ON")) {
+                            SelectBtMachine.this.fmStation.setForcedMono(true);
+                            if (mSelectBtInterface != null)
+                                mSelectBtInterface.updateForceMono(true);
+                        } else {
+                            SelectBtMachine.this.fmStation.setForcedMono(false);
+                            if (mSelectBtInterface != null)
+                                mSelectBtInterface.updateForceMono(false);
+                        }
 
+
+                        questionPending = NO_QUESTION;
+                        break;
+
+                    default:
+                        questionPending = NO_QUESTION;
+                }
+
+                break;
         }
 
 
@@ -294,11 +292,11 @@ public class SelectBtMachine {
     private class MessageExtractor {
         private String message;
 
-        public MessageExtractor(String m) {
+        MessageExtractor(String m) {
             message = m;
         }
 
-        public String getStringFromMessage() {
+        String getStringFromMessage() {
             if (message.isEmpty()) return "";
             String arr[] = message.trim().split(" ", 2);
             if(arr.length==1)
@@ -308,7 +306,7 @@ public class SelectBtMachine {
             return arr[0];
         }
 
-        public String getIdentifierFromMessage() {
+        String getIdentifierFromMessage() {
             if (message.isEmpty()) return "";   // first "
             String arr[] = message.trim().split("\"", 2);
             message = arr[1];
@@ -318,7 +316,7 @@ public class SelectBtMachine {
             return arr[0];
         }
 
-        public String getRDSFromMessage() {
+        String getRDSFromMessage() {
             int len = message.length();
             String RDS;
             if (len == 0) return "";
@@ -333,12 +331,10 @@ public class SelectBtMachine {
             return RDS;
         }
 
-        public void removeCR() {
+        void removeCR() {
             if (message.length()>0)
                 message = message.substring(0, message.length()-1);
         }
 
     }
-
-
 }

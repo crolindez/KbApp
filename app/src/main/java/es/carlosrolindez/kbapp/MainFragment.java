@@ -65,15 +65,6 @@ public class MainFragment extends Fragment {
         deviceListAdapter = new BtDeviceListAdapter(activity, deviceList, mBtInterface, mTransitionInterface );
         mListView.setAdapter(deviceListAdapter);
 
- /*       mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                pbInterface.stopProgressBar();
-                KbDevice device = (KbDevice)parent.getItemAtPosition(position);
-                mBtInterface.toggleBluetoothA2dp(device);
-            }
-        });*/
-
     }
 
     @Override
@@ -89,11 +80,6 @@ public class MainFragment extends Fragment {
         outState.putParcelable(DEVICE_LIST,deviceList);
     }
 
-/*
-    public interface ProgressBarInterface {
-        void stopProgressBar();
-    }
-*/
     public void addBtDevice(String name, KbDevice device) {
 
         for (KbDevice listDevice : deviceList)
@@ -117,7 +103,6 @@ public class MainFragment extends Fragment {
                 return;
             }
         }
-
     }
 
     public void hideInProcess(BluetoothDevice device) {

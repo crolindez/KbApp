@@ -24,7 +24,6 @@
             android:layout_gravity="center_vertical"
             android:layout_marginEnd="15dp"
             android:layout_weight="4"
-            android:text="NAME"
             android:textAlignment="center"
             android:textColor="@color/colorAccent"
             android:textSize="22sp"
@@ -39,7 +38,7 @@
             android:layout_marginEnd="15dp"
             android:layout_weight="1"
             android:elevation="12dp"
-            android:text="On"
+            android:text="@string/OnSwitch"
             android:textAlignment="center" />
 
     </LinearLayout>
@@ -49,7 +48,7 @@
         android:id="@+id/fm_button"
         android:layout_width="match_parent"
         android:layout_height="42dp"
-        android:text="FM" />
+        android:text="@string/FmButton" />
 
     <RelativeLayout
         android:id="@+id/layout_fm_button"
@@ -63,7 +62,6 @@
             android:layout_width="180dp"
             android:layout_height="96dp"
             android:gravity="center_vertical|center_horizontal"
-            android:text=""
             android:textColor="@color/colorAccent"
             android:textSize="24sp"
             android:layout_alignParentTop="true"
@@ -104,8 +102,7 @@
             android:id="@+id/button_mem_fm_5"
             android:layout_width="90dp"
             android:layout_height="40dp"
-            android:background="@drawable/ic_button_horozintal"
-            android:text="Button"
+            android:background="@drawable/ic_button_horizontal"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="15dp"
             android:layout_centerHorizontal="true" />
@@ -114,8 +111,7 @@
             android:id="@+id/button_mem_fm_2"
             android:layout_width="90dp"
             android:layout_height="40dp"
-            android:background="@drawable/ic_button_horozintal"
-            android:text="Button"
+            android:background="@drawable/ic_button_horizontal"
             android:layout_above="@+id/button_mem_fm_5"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="15dp"/>
@@ -124,8 +120,7 @@
             android:id="@+id/button_mem_fm_4"
             android:layout_width="90dp"
             android:layout_height="40dp"
-            android:background="@drawable/ic_button_horozintal"
-            android:text="Button"
+            android:background="@drawable/ic_button_horizontal"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="15dp"
             android:layout_toStartOf="@+id/button_mem_fm_5"
@@ -135,8 +130,7 @@
             android:id="@+id/button_mem_fm_1"
             android:layout_width="90dp"
             android:layout_height="40dp"
-            android:background="@drawable/ic_button_horozintal"
-            android:text="Button"
+            android:background="@drawable/ic_button_horizontal"
             android:layout_above="@+id/button_mem_fm_4"
             android:layout_marginBottom="15dp"
             android:layout_toStartOf="@+id/button_mem_fm_2"
@@ -146,8 +140,7 @@
             android:id="@+id/button_mem_fm_6"
             android:layout_width="90dp"
             android:layout_height="40dp"
-            android:background="@drawable/ic_button_horozintal"
-            android:text="Button"
+            android:background="@drawable/ic_button_horizontal"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="15dp"
             android:layout_toEndOf="@+id/button_mem_fm_5"
@@ -157,8 +150,7 @@
             android:id="@+id/button_mem_fm_3"
             android:layout_width="90dp"
             android:layout_height="40dp"
-            android:background="@drawable/ic_button_horozintal"
-            android:text="Button"
+            android:background="@drawable/ic_button_horizontal"
             android:layout_above="@+id/button_mem_fm_6"
             android:layout_marginBottom="15dp"
             android:layout_toEndOf="@+id/button_mem_fm_2"
@@ -170,52 +162,54 @@
         android:id="@+id/dab_button"
         android:layout_width="match_parent"
         android:layout_height="42dp"
-        android:text="DAB" />
+        android:text="@string/DabButton" />
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/layout_dab_button"
         android:animateLayoutChanges="true"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0"
-        android:orientation="horizontal">
+        android:layout_weight="0">
         <ImageView
+            tools:ignore="ContentDescription"
             android:id="@+id/dab_imageView"
-            android:layout_width="match_parent"
+            android:layout_width="100dp"
             android:layout_height="100dp"
-            android:layout_gravity="center_vertical|center_horizontal|center"
-            app:srcCompat="@drawable/ic_dab" />
+            app:srcCompat="@drawable/ic_dab"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true" />
 
-    </LinearLayout>
+    </RelativeLayout>
 
 
     <Button
         android:id="@+id/bt_button"
         android:layout_width="match_parent"
         android:layout_height="42dp"
-        android:text="Bluetooth" />
+        android:text="@string/BtButton" />
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/layout_bt_button"
         android:animateLayoutChanges="true"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0"
-        android:orientation="horizontal">
+        android:layout_weight="0">
 
         <ImageView
+            tools:ignore="ContentDescription"
             android:id="@+id/bt_imageView"
-            android:layout_width="match_parent"
+            android:layout_width="100dp"
             android:layout_height="100dp"
-            android:layout_gravity="center_vertical|center_horizontal|center"
-            app:srcCompat="@drawable/animated_bluetooth" />
-    </LinearLayout>
+            app:srcCompat="@drawable/animated_bluetooth"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true" />
+    </RelativeLayout>
 
     <Button
         android:id="@+id/monitor_button"
         android:layout_width="match_parent"
         android:layout_height="42dp"
-        android:text="Monitor" />
+        android:text="@string/MonitorButton" />
 
 
     <ScrollView

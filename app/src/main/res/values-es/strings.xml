@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">KbApp</string>
     <string name="bt_not_available">Bluetooth no disponible</string>
     <string name="bt_not_enabled">Bluetooth no habilitado</string>
+
+    <string name="OnSwitch">On</string>
+    <string name="FmButton">FM</string>
+    <string name="DabButton">DAB</string>
+    <string name="BtButton">Bluetooth</string>
+    <string name="MonitorButton">Monitor</string>
+
+    <string name="SelectBtTitle">"Select BT"</string>
+    <string name="ListDevicesTitle">"List of KBSound devices"</string>
 </resources>

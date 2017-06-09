@@ -5,10 +5,10 @@ import android.os.Parcelable;
 
 import java.util.ArrayList;
 
-public class ArrayKbDevice extends ArrayList<KbDevice> implements Parcelable{
+class ArrayKbDevice extends ArrayList<KbDevice> implements Parcelable{
     public static String TAG = "ArrayKbDevice";
 	
-	public void addSorted(KbDevice newDevice) {
+	void addSorted(KbDevice newDevice) {
 		if (isEmpty()) {
 			add(newDevice);
 			return;
@@ -67,7 +67,5 @@ public class ArrayKbDevice extends ArrayList<KbDevice> implements Parcelable{
 		{
 			return new ArrayKbDevice[size];
 		}
-
 	};
-
 }

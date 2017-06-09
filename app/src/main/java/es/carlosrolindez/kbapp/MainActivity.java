@@ -100,8 +100,8 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
         ActionBar ab = getSupportActionBar();
         if (ab!=null) {
-            ab.setDisplayHomeAsUpEnabled(true);
-            ab.setHomeAsUpIndicator(R.drawable.ic_space);
+            ab.setDisplayHomeAsUpEnabled(false);
+            ab.setTitle(getResources().getString(R.string.ListDevicesTitle));
         }
 
         mSelectBtMachine = new SelectBtMachine(this);
@@ -112,11 +112,19 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
             mSelectBtFragment = (SelectBtFragment) fm.findFragmentByTag(SELECT_BT_FRAGMENT);
             mainFragment = null;
             if (mSelectBtFragment!=null) {
-                if (ab!=null) ab.setHomeAsUpIndicator(R.drawable.ic_back);
+                if (ab!=null) {
+                    ab.setDisplayHomeAsUpEnabled(true);
+                    ab.setTitle(getResources().getString(R.string.SelectBtTitle));
+
+                }
                 mSelectBtFragment.setSelectMachine(mSelectBtMachine);
             } else {
                 mainFragment = (MainFragment) fm.findFragmentByTag(MAIN_FRAGMENT);
-                if (ab!=null) ab.setHomeAsUpIndicator(R.drawable.ic_space);
+                if (ab!=null) {
+                    ab.setDisplayHomeAsUpEnabled(false);
+                    ab.setTitle(getResources().getString(R.string.ListDevicesTitle));
+
+                }
 
             }
 
@@ -133,7 +141,10 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
                     .add(R.id.root_layout, mainFragment, MAIN_FRAGMENT)
                     .commit();
 
-            if (ab!=null) ab.setHomeAsUpIndicator(R.drawable.ic_space);
+            if (ab!=null) {
+                ab.setDisplayHomeAsUpEnabled(false);
+                ab.setTitle(getResources().getString(R.string.ListDevicesTitle));
+            }
         }
 
         mBtA2dpConnectionManager = new BtA2dpConnectionManager(getApplication(),this);
@@ -278,7 +289,11 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
         FragmentManager fm = getSupportFragmentManager();
         int count = fm.getBackStackEntryCount();
         ActionBar ab = getSupportActionBar();
-        if (ab!=null) ab.setHomeAsUpIndicator(R.drawable.ic_space);
+        if (ab!=null) {
+//            ab.setHomeAsUpIndicator(R.drawable.ic_space);
+            ab.setDisplayHomeAsUpEnabled(false);
+            ab.setTitle(getResources().getString(R.string.ListDevicesTitle));
+        }
 
 
         if (count == 0) {
@@ -505,7 +520,8 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
             ActionBar ab = getSupportActionBar();
             if (ab!=null) {
                 ab.setDisplayHomeAsUpEnabled(true);
-                ab.setHomeAsUpIndicator(R.drawable.ic_back);
+                ab.setTitle(getResources().getString(R.string.SelectBtTitle));
+//                ab.setHomeAsUpIndicator(R.drawable.ic_back);
             }
 
             mSelectBtFragment = SelectBtFragment.newInstance(mSelectBtMachine);

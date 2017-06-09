@@ -35,12 +35,12 @@ class BtDeviceListAdapter extends BaseAdapter {
     private final int mShortAnimationDuration;
     private final int mLongAnimationDuration;
 
-    public interface TransitionInterface {
+    interface TransitionInterface {
         void enterSelectBtFragment();
 
     }
 
-	public BtDeviceListAdapter(Context context, ArrayKbDevice deviceList, BtConnectionInterface btInterface, TransitionInterface transitionInterface)
+	BtDeviceListAdapter(Context context, ArrayKbDevice deviceList, BtConnectionInterface btInterface, TransitionInterface transitionInterface)
 	{
 		mKbDeviceList = deviceList;
 		inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -251,7 +251,7 @@ class BtDeviceListAdapter extends BaseAdapter {
     }
 
 
-    public class SwipeView implements View.OnTouchListener {
+    class SwipeView implements View.OnTouchListener {
 
         private final int mSlop;
         private float mDownX;
@@ -269,7 +269,7 @@ class BtDeviceListAdapter extends BaseAdapter {
 
 
 
-        public SwipeView(RelativeLayout main, RelativeLayout delete, ListView list, KbDevice device, int position, ImageView deleteButton) {
+        SwipeView(RelativeLayout main, RelativeLayout delete, ListView list, KbDevice device, int position, ImageView deleteButton) {
             ViewConfiguration vc = ViewConfiguration.get(mContext);
             mSlop = vc.getScaledTouchSlop();
             mainLayout = main;
@@ -431,7 +431,4 @@ class BtDeviceListAdapter extends BaseAdapter {
 		return pin;
 
 	}
-
-
-
 }

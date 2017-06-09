@@ -231,11 +231,11 @@ public class BtA2dpConnectionManager {
                     break;
                 }
                 case BluetoothA2dp.ACTION_PLAYING_STATE_CHANGED: {
-                    int state = intent.getIntExtra(BluetoothA2dp.EXTRA_STATE, BluetoothA2dp.STATE_NOT_PLAYING);
+//                    int state = intent.getIntExtra(BluetoothA2dp.EXTRA_STATE, BluetoothA2dp.STATE_NOT_PLAYING);
                     break;
                 }
                 case BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED: {
-                    int state = intent.getIntExtra(BluetoothHeadset.EXTRA_STATE, BluetoothHeadset.STATE_DISCONNECTED);
+//                    int state = intent.getIntExtra(BluetoothHeadset.EXTRA_STATE, BluetoothHeadset.STATE_DISCONNECTED);
                     if (headsetProxy != null) {
                         device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                         disconnectBluetoothHeadset(device);
