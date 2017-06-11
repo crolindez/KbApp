@@ -5,7 +5,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.transition.TransitionManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -23,6 +25,7 @@ import android.widget.TextView;
 
 
 // TODO Sometimes RDS arrives to late.
+// TODO looks for a better feedback for long press (beep sometimes does not work)
 
 
 
@@ -59,11 +62,19 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
 
     private SeekBar volumeBar;
 
+    private FloatingActionButton fab;
+
     private boolean monitorActive;
 
     private FmStation[] fmMemories;
 
-    private SharedPreferences preferences;
+    private int idealChannel;
+    private int idealFmVolume;
+    private FmStation idealFmStation;
+    private int idealEqualization;
+
+    private SharedPreferences preferencesFmMemories;
+    private SharedPreferences preferencesIdeal;
 
 
     public static SelectBtFragment newInstance(SelectBtMachine machine) {
@@ -87,11 +98,14 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         super.onActivityCreated(savedInstanceState);
 
         final Activity activity = getActivity();
-        preferences = activity.getSharedPreferences("FM_MEMORIES", Context.MODE_PRIVATE);
+        preferencesFmMemories = activity.getSharedPreferences("FM_MEMORIES", Context.MODE_PRIVATE);
         fmMemories = new FmStation[NUM_FM_MEMORIES];
         for (int i=0;i<NUM_FM_MEMORIES;i++) {
             fmMemories[i]=loadFmMemory(i);
         }
+
+        preferencesIdeal = activity.getSharedPreferences("IDEAL", Context.MODE_PRIVATE);
+        loadIdeal();
 
         selectBtLayout = (LinearLayout) activity.findViewById(R.id.selectBt);
         monitorActive = false;
@@ -165,6 +179,7 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
             }
         });
 
+        fab = (FloatingActionButton) activity.findViewById(R.id.idealButton);
 
         fmButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -249,6 +264,7 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
             mButtonMemFm[memoryCounter].setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
+                    beep();
                     if (fmMemories[memoryCounter] == null) fmMemories[memoryCounter] = new FmStation();
                     fmMemories[memoryCounter].copyStation(mSelectBtMachine.fmStation);
                     saveFmMemory(fmMemories[memoryCounter],memoryCounter);
@@ -266,7 +282,39 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
             }
         });
 
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (idealChannel) {
+                    case SelectBtMachine.FM_CHANNEL:
+                        mSelectBtMachine.setFmIdeal(idealFmVolume, idealFmStation, idealEqualization);
+                        updateChannel();
+                        updateFmStation(idealFmStation);
+                        updateVolume();
+                        updateForceMono(idealFmStation.isForcedMono());
+                        break;
+                    case SelectBtMachine.BT_CHANNEL:
+                        mSelectBtMachine.setBtIdeal(idealEqualization);
+                        updateChannel();
+                        updateVolume();
+                        break;
+                    case SelectBtMachine.DAB_CHANNEL:
+                    case SelectBtMachine.NO_CHANNEL:
+                    default:
+                }
+            }
+        });
+
+        fab.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                beep();
+                saveIdeal();
+                return true;
+            }
+        });
     }
+
 
     @Override
     public void onResume() {
@@ -281,8 +329,14 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         mSelectBtMachine.setSelectBtInterface(null);
     }
 
+    private void beep() {
+        ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
+        toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP,150);
+    }
+
+
     private void saveFmMemory(FmStation station, int numMemory) {
-        SharedPreferences.Editor edit = preferences.edit();
+        SharedPreferences.Editor edit = preferencesFmMemories.edit();
         if (station!=null) {
             edit.putString("Frequency"+numMemory, station.getFrequency());
             if (station.getName()!=null)
@@ -303,15 +357,51 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
 
     private FmStation loadFmMemory(int numMemory) {
         FmStation station=null;
-        String freq = preferences.getString("Frequency" + numMemory, "");
+        String freq = preferencesFmMemories.getString("Frequency" + numMemory, "");
         if (!freq.equals("")) {
             station = new FmStation(freq);
-            String RDS = preferences.getString("RDS" + numMemory, "");
+            String RDS = preferencesFmMemories.getString("RDS" + numMemory, "");
             if (!RDS.equals(""))
                 station.setName(RDS);
-            station.setForcedMono(preferences.getBoolean("ForcedMono" + numMemory, false));
+            station.setForcedMono(preferencesFmMemories.getBoolean("ForcedMono" + numMemory, false));
         }
         return station;
+    }
+
+    private void saveIdeal() {
+        SharedPreferences.Editor edit = preferencesIdeal.edit();
+        idealChannel = mSelectBtMachine.channel;
+        edit.putInt("IdealChannel", idealChannel);
+
+        idealFmStation.copyStation(mSelectBtMachine.fmStation);
+        edit.putString("IdealFrequency", idealFmStation.getFrequency());
+        edit.putString("IdealRDS",idealFmStation.getName());
+        edit.putBoolean("IdealForcedMono",idealFmStation.isForcedMono());
+
+        idealFmVolume = mSelectBtMachine.volumeFM;
+        edit.putInt("IdealFmVolume",idealFmVolume);
+
+        idealEqualization = mSelectBtMachine.equalization;
+        edit.putInt("IdealEqualization",idealEqualization);
+
+
+        edit.apply();
+    }
+    private void loadIdeal() {
+        idealChannel  = preferencesIdeal.getInt("IdealChannel", SelectBtMachine.FM_CHANNEL);
+
+        String freq = preferencesIdeal.getString("IdealFrequency", "87.5");
+        idealFmStation = new FmStation(freq);
+        String RDS = preferencesIdeal.getString("IdealRDS", "");
+        idealFmStation.setName(RDS);
+        boolean forced = preferencesIdeal.getBoolean("IdealForcedMono", false);
+        idealFmStation.setForcedMono(forced);
+
+        idealFmVolume = preferencesIdeal.getInt("IdealFmVolume", 5);
+
+        idealEqualization = preferencesIdeal.getInt("IdealEqualization", SelectBtMachine.EQ_OFF);
+
+
     }
 
     //*************************************************************
@@ -432,21 +522,25 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
                 case SelectBtMachine.FM_CHANNEL:
                     volumeBar.setVisibility(View.VISIBLE);
                     volumeBar.setProgress(mSelectBtMachine.volumeFM);
+                    fab.setVisibility(View.VISIBLE);
                     break;
                 case SelectBtMachine.BT_CHANNEL:
                     AudioManager am = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
                     volumeBar.setVisibility(View.VISIBLE);
                     volumeBar.setProgress(am.getStreamVolume(AudioManager.STREAM_MUSIC));
+                    fab.setVisibility(View.VISIBLE);
                     break;
                 case SelectBtMachine.DAB_CHANNEL:
                 case SelectBtMachine.NO_CHANNEL:
                 default:
                     volumeBar.setVisibility(View.INVISIBLE);
+                    fab.setVisibility(View.INVISIBLE);
                     break;
 
             }
         } else {
             volumeBar.setVisibility(View.INVISIBLE);
+            fab.setVisibility(View.INVISIBLE);
         }
 
     }

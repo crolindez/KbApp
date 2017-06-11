@@ -12,4 +12,5 @@
 
     <string name="SelectBtTitle">"Select BT"</string>
     <string name="ListDevicesTitle">"List of KBSound devices"</string>
+
 </resources>

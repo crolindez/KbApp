@@ -11,6 +11,19 @@ class SelectBtMachine {
     static final int DAB_CHANNEL = 3;
     static final int MONITOR_CHANNEL = 10;
 
+    static final int EQ_OFF = 0;
+    static final int EQ_SOFT = 1;
+    static final int EQ_BASS = 2;
+    static final int EQ_TREBLE = 3;
+    static final int EQ_CLASSICAL = 4;
+    static final int EQ_ROCK = 5;
+    static final int EQ_JAZZ = 6;
+    static final int EQ_POP = 7;
+    static final int EQ_DANCE = 8;
+    static final int EQ_RNB = 9;
+    static final int EQ_USER = 10;
+
+
     static final int MAX_VOLUME_FM = 15;
 
     private static final int NO_QUESTION = 0;
@@ -25,6 +38,9 @@ class SelectBtMachine {
     int volumeFM;
     String name;
     final FmStation fmStation;
+
+    int equalization;
+
 
     private int questionPending;
 
@@ -60,6 +76,7 @@ class SelectBtMachine {
         volumeFM = MAX_VOLUME_FM/2;
         name = "SelectBtMachine";
         fmStation = new FmStation();
+        equalization = EQ_OFF;
 
         questionPending = NO_QUESTION;
 
@@ -106,7 +123,26 @@ class SelectBtMachine {
         writeScanDown();
     }
 
+    void setBtIdeal(int equ) {
+        channel = BT_CHANNEL;
+        equalization = equ;
+        writeIdeal(volumeFM,"BT",fmStation.getFrequency(),equ);
+    }
 
+    void setFmIdeal(int volume,FmStation station,int equ) {
+        channel = FM_CHANNEL;
+        volumeFM = volume;
+        fmStation.copyStation(station);
+        equalization = equ;
+        writeIdeal(volumeFM,"FM",fmStation.getFrequency(),equ);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                writeForcedMono(fmStation.isForcedMono());
+            }
+        }, 250);
+    }
 
 
     //**********************************************
@@ -181,6 +217,14 @@ class SelectBtMachine {
         if (mSelectBtInterface!=null)  mSelectBtInterface.updateMessage("<< SCN DOWN");
     }
 
+    private void writeIdeal(int volumen,String channel,String frequency, int equalization) {
+        mSppComm.sendSppMessage("AUD " + String.valueOf(volumen) + " " + channel + " " + frequency +
+                " " + String.valueOf(equalization) + "\r");
+        if (mSelectBtInterface!=null)  mSelectBtInterface.updateMessage("<< AUD " + String.valueOf(volumen) + " " + channel + " " + frequency +
+                " " + String.valueOf(equalization));
+
+    }
+
     //**********************************************
     // Interpreter of Bt Spp Message.
     // Translates message -> changes state value -> updates view by means of SelectBtInterface
@@ -235,7 +279,7 @@ class SelectBtMachine {
                         SelectBtMachine.this.fmStation.setName(messageExtractor.getRDSFromMessage());
 
                         String tunerSensitivity = messageExtractor.getStringFromMessage();
-                        String equalizationMode = messageExtractor.getStringFromMessage();
+                        equalization = Integer.parseInt(messageExtractor.getStringFromMessage());
 
                         volumeFM = Integer.parseInt(messageExtractor.getStringFromMessage());
 
