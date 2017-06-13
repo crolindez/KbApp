@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
     private MenuItem scanButton;
     private MenuItem mActionProgressItem;
+    private MenuItem mMenuItem;
 
     private MainFragment mainFragment;
     private SelectBtFragment mSelectBtFragment;
@@ -60,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
     private SelectBtMachine mSelectBtMachine;
 
     private LocalBroadcastManager mLocalBroadcastManager;
+
+    private boolean menuActivated;
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -73,9 +76,11 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
                 String readMessage = intent.getStringExtra(RfCommManager.message_content);
                 mSelectBtMachine.interpreter(readMessage);
             } else if (intent.getAction().equals(RfCommManager.STOPPED)) {
+ //               Log.e(TAG,"Socket stopped");
                 if (mBtSppCommManager.isSocketConnected())
                     mBtSppCommManager.closeSocket();
             } else if (intent.getAction().equals(RfCommManager.CLOSED)) {
+ //               Log.e(TAG,"Socket Closed");
             }
         }
     };
@@ -115,7 +120,6 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
                 if (ab!=null) {
                     ab.setDisplayHomeAsUpEnabled(true);
                     ab.setTitle(getResources().getString(R.string.SelectBtTitle));
-
                 }
                 mSelectBtFragment.setSelectMachine(mSelectBtMachine);
             } else {
@@ -146,9 +150,9 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
                 ab.setTitle(getResources().getString(R.string.ListDevicesTitle));
             }
         }
+        menuActivated = false;
 
         mBtA2dpConnectionManager = new BtA2dpConnectionManager(getApplication(),this);
-
 
         initializeBtSppListener();
     }
@@ -174,7 +178,9 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
         }
         else
             startRfListening();
-
+        if (mSelectBtFragment!=null)
+            if (!mBtSppCommManager.isSocketConnected())
+                onBackPressed();
 
     }
 
@@ -185,6 +191,11 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
         if (mainFragment!=null) mainFragment.hideConnection();
         if (mBluetoothAdapter!=null) mBluetoothAdapter.cancelDiscovery();
+
+        if (mSelectBtFragment!=null) {
+            mSelectBtFragment.hideMenu();
+            menuActivated = false;
+        }
 
     }
 
@@ -207,6 +218,9 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
         // Store instance of the menu item containing progress
         mActionProgressItem = menu.findItem(R.id.mActionProgress);
         scanButton = menu.findItem(R.id.bt_scan);
+        mMenuItem = menu.findItem(R.id.menu);
+
+
         if (mBtSppCommManager.isSocketConnected()) {
             setProgressBar(ActivityState.CONNECTED);
         } else {
@@ -226,6 +240,12 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
                     setProgressBar(ActivityState.SCANNING);
                 }
                 break;
+            case R.id.menu:
+                if (mSelectBtFragment!=null) {
+                    mSelectBtFragment.showMenu();
+                    menuActivated=true;
+                }
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -242,6 +262,9 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
                 if (scanButton!=null) {
                     scanButton.setVisible(true);
                 }
+                if (mMenuItem!=null) {
+                    mMenuItem.setVisible(false);
+                }
                 break;
             case SCANNING:
                 mBluetoothAdapter.startDiscovery();
@@ -251,6 +274,9 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
                 if (scanButton!=null)  {
                     scanButton.setVisible(false);
                 }
+                if (mMenuItem!=null) {
+                    mMenuItem.setVisible(false);
+                }
                 break;
             case CONNECTED:
                 mBluetoothAdapter.cancelDiscovery();
@@ -259,6 +285,15 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
                 }
                 if (scanButton!=null) {
                     scanButton.setVisible(false);
+                }
+                if (mSelectBtFragment!=null) {
+                    if (mMenuItem != null) {
+                        mMenuItem.setVisible(true);
+                    }
+                } else {
+                    if (mMenuItem != null) {
+                        mMenuItem.setVisible(false);
+                    }
                 }
                 break;
 
@@ -271,7 +306,7 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
         mBtA2dpConnectionManager.openManager();
 
         mBtListenerManager.knownBtDevices();
-        mBtListenerManager.searchBtDevices();
+        mBtListenerManager.setListenerBtDevices();
 
     }
 
@@ -286,6 +321,15 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
     @Override
     public void onBackPressed() {
+
+        if (mSelectBtFragment!=null) {
+            if (menuActivated) {
+                mSelectBtFragment.hideMenu();
+                menuActivated = false;
+                return;
+            }
+        }
+
         FragmentManager fm = getSupportFragmentManager();
         int count = fm.getBackStackEntryCount();
         ActionBar ab = getSupportActionBar();
@@ -301,7 +345,10 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
         } else {
             fm.popBackStack();
             mainFragment = (MainFragment) fm.findFragmentByTag(MAIN_FRAGMENT);
+            mSelectBtFragment = null;
         }
+
+        setProgressBar(ActivityState.CONNECTED);
 
     }
 
@@ -530,6 +577,7 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
                     .replace(R.id.root_layout, mSelectBtFragment, SELECT_BT_FRAGMENT)
                     .addToBackStack(null)
                     .commit();
+            setProgressBar(ActivityState.CONNECTED);
         }
     }
 
@@ -539,8 +587,10 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
     @Override
     public void sendSppMessage(String message){
-        if (mBtSppCommManager!=null)
-            if (mBtSppCommManager.isSocketConnected())
+        if (mBtSppCommManager!=null) {
+            if (mBtSppCommManager.isSocketConnected()) {
                 mBtSppCommManager.write(message);
+            }
+        }
     }
 }

@@ -45,7 +45,7 @@ public class BtListenerManager extends RfListenerManager<BluetoothDevice,BtListe
         }
     }
 
-    public  void searchBtDevices() {
+    public  void setListenerBtDevices() {
 
         if (!mBtReceiverRegistered) {
             IntentFilter filter1 = new IntentFilter(BluetoothDevice.ACTION_FOUND);

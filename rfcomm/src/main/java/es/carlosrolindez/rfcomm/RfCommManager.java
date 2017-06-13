@@ -3,7 +3,6 @@ package es.carlosrolindez.rfcomm;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -129,6 +128,7 @@ public abstract class RfCommManager<TypeRfSocket> {
         try {
             mMessageQueue.put(buffer);
         } catch (InterruptedException e) {
+  //          Log.e(TAG,"write");
             e.printStackTrace();
         }
 

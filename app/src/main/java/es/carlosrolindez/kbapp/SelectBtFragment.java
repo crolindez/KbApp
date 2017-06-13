@@ -5,13 +5,16 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.media.AudioManager;
-import android.media.ToneGenerator;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.transition.TransitionManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -51,6 +54,7 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     private Button[] mButtonMemFm;
     private Button dabButton;
     private RelativeLayout mDabLayout;
+    private LinearLayout mMenuLayout;
 
     private Button btButton;
     private RelativeLayout mBtLayout;
@@ -75,7 +79,6 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
 
     private SharedPreferences preferencesFmMemories;
     private SharedPreferences preferencesIdeal;
-
 
     public static SelectBtFragment newInstance(SelectBtMachine machine) {
         SelectBtFragment selectBtFragment = new SelectBtFragment();
@@ -109,6 +112,8 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
 
         selectBtLayout = (LinearLayout) activity.findViewById(R.id.selectBt);
         monitorActive = false;
+
+        mMenuLayout = (LinearLayout) activity.findViewById(R.id.menuLayout);
 
         nameSelectBt = (TextView) activity.findViewById(R.id.selectBtName);
         onOffSwitch = (Switch) activity.findViewById(R.id.switch_on_off);
@@ -264,7 +269,7 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
             mButtonMemFm[memoryCounter].setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    beep();
+ //                   beep();
                     if (fmMemories[memoryCounter] == null) fmMemories[memoryCounter] = new FmStation();
                     fmMemories[memoryCounter].copyStation(mSelectBtMachine.fmStation);
                     saveFmMemory(fmMemories[memoryCounter],memoryCounter);
@@ -308,7 +313,7 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         fab.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                beep();
+//                beep();
                 saveIdeal();
                 return true;
             }
@@ -329,11 +334,27 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         mSelectBtMachine.setSelectBtInterface(null);
     }
 
-    private void beep() {
+ /*   private void beep() {
         ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
         toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP,150);
+    }*/
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
     }
 
+    void showMenu() {
+        Log.e(TAG,"show");
+        if (mMenuLayout!=null) {
+            Log.e(TAG,"confirmed");
+            mMenuLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
+    void hideMenu() {
+        if (mMenuLayout!=null) mMenuLayout.setVisibility(View.INVISIBLE);
+    }
 
     private void saveFmMemory(FmStation station, int numMemory) {
         SharedPreferences.Editor edit = preferencesFmMemories.edit();
@@ -373,20 +394,22 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         idealChannel = mSelectBtMachine.channel;
         edit.putInt("IdealChannel", idealChannel);
 
-        idealFmStation.copyStation(mSelectBtMachine.fmStation);
-        edit.putString("IdealFrequency", idealFmStation.getFrequency());
-        edit.putString("IdealRDS",idealFmStation.getName());
-        edit.putBoolean("IdealForcedMono",idealFmStation.isForcedMono());
+        if  (idealChannel==SelectBtMachine.FM_CHANNEL) {
+            idealFmStation.copyStation(mSelectBtMachine.fmStation);
+            edit.putString("IdealFrequency", idealFmStation.getFrequency());
+            edit.putString("IdealRDS",idealFmStation.getName());
+            edit.putBoolean("IdealForcedMono",idealFmStation.isForcedMono());
 
-        idealFmVolume = mSelectBtMachine.volumeFM;
-        edit.putInt("IdealFmVolume",idealFmVolume);
+            idealFmVolume = mSelectBtMachine.volumeFM;
+            edit.putInt("IdealFmVolume",idealFmVolume);
+        }
 
         idealEqualization = mSelectBtMachine.equalization;
         edit.putInt("IdealEqualization",idealEqualization);
-
-
+        showColorSelectedChannel();
         edit.apply();
     }
+
     private void loadIdeal() {
         idealChannel  = preferencesIdeal.getInt("IdealChannel", SelectBtMachine.FM_CHANNEL);
 
@@ -487,19 +510,37 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         if (mSelectBtMachine.onOff) {
             switch (mSelectBtMachine.channel) {
                 case SelectBtMachine.FM_CHANNEL:
-                    fmButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimary));
+                    fmButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorAccent));
                     dabButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
                     btButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            fmButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimary));
+                        }
+                    }, 500);
                     break;
                 case SelectBtMachine.DAB_CHANNEL:
                     fmButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
-                    dabButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimary));
+                    dabButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorAccent));
                     btButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            dabButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimary));
+                        }
+                    }, 500);
                     break;
                 case SelectBtMachine.BT_CHANNEL:
                     fmButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
                     dabButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
-                    btButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimary));
+                    btButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorAccent));
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            btButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimary));
+                        }
+                    }, 500);
                     break;
                 case SelectBtMachine.NO_CHANNEL:
                 default:

@@ -19,5 +19,12 @@
         app:showAsAction="ifRoom"
         app:actionLayout="@layout/action_view_progress" />
 
+    <item
+        android:id="@+id/menu"
+        android:visible="false"
+        android:title=""
+        android:icon="@drawable/ic_menu"
+        android:orderInCategory="200"
+        app:showAsAction="ifRoom" />
 
 </menu>
