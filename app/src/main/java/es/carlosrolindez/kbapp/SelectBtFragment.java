@@ -11,10 +11,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.transition.TransitionManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -257,9 +255,18 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
                 @Override
                 public void onClick(View v) {
                     if (fmMemories[memoryCounter] == null) return;
-                    mSelectBtMachine.setFmFrequency(fmMemories[memoryCounter].getFrequency());
-                    mSelectBtMachine.fmStation.setName(fmMemories[memoryCounter].getName());
+                    mSelectBtMachine.fmStation.copyStation(fmMemories[memoryCounter]);
+                    mSelectBtMachine.setFmFrequency(mSelectBtMachine.fmStation.getFrequency());
                     updateFmStation(mSelectBtMachine.fmStation);
+
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mSelectBtMachine.setForcedMono(mSelectBtMachine.fmStation.isForcedMono());
+                            updateForceMono(mSelectBtMachine.fmStation.isForcedMono());
+                        }
+                    }, 250);
+
                 }
             });
         }
@@ -345,9 +352,7 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     }
 
     void showMenu() {
-        Log.e(TAG,"show");
         if (mMenuLayout!=null) {
-            Log.e(TAG,"confirmed");
             mMenuLayout.setVisibility(View.VISIBLE);
         }
     }
