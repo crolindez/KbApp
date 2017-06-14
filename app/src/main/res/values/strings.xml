@@ -8,6 +8,9 @@
     <string name="select_play_vector_path" translatable="false">m 55,50       l -20,12.5        l -20,12.5      l 0,-50      l 20,12.5       l 20,12.5          </string>
     <string name="stereo" translatable="false">m53.54,61.25 l9.25,0 15.52,19.28 0,-59.28 -15.52,19.28 -9.25,0z m-7.08,0 l-9.25,0 -15.52,19.28 0,-59.28 15.52,19.28 9.25,0z</string>
     <string name="mono" translatable="false"> m37.54,61.25 l9.25,0 15.52,19.28 0,-59.28 -15.52,19.28 -9.25,0z m0,0 l9.25,0 15.52,19.28 0,-59.28 -15.52,19.28 -9.25,0z</string>
+    <string name="sens1" translatable="false"> m33.26,59.6a20.43,19.85 90,0 1,17.19 -10.21,20.43 19.85,90 0,1 17.19,10.21</string>
+    <string name="sens2" translatable="false"> m20.98,52.35a34.48,33.51 90,0 1,29.02 -17.24,34.48 33.51,90 0,1 29.02,17.24</string>
+    <string name="sens3" translatable="false"> m9.12,45.31a48.57,47.2 90,0 1,40.88 -24.28,48.57 47.2,90 0,1 40.88,24.28</string>
 
     <string name="OnSwitch">On</string>
     <string name="FmButton">FM</string>

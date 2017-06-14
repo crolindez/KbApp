@@ -11,6 +11,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.transition.TransitionManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -26,7 +27,7 @@ import android.widget.TextView;
 
 
 // TODO Sometimes RDS arrives to late.
-// TODO looks for a better feedback for long press (beep sometimes does not work)
+// TODO Setting sheet does not block buttons below  -- New Fragment?
 
 
 
@@ -48,6 +49,7 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     private Button mButtonUp;
     private Button mButtonDown;
     private Button mButtonForcedMono;
+    private Button mButtonSensitivity;
     private boolean forcedMonoState;
     private Button[] mButtonMemFm;
     private Button dabButton;
@@ -130,6 +132,7 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         mButtonDown = (Button) activity.findViewById(R.id.button_down);
         mButtonForcedMono = (Button) activity.findViewById(R.id.button_forced_mono);
         forcedMonoState = true;
+        mButtonSensitivity = (Button) activity.findViewById(R.id.button_sensitivity);
 
         mButtonMemFm = new Button[NUM_FM_MEMORIES];
         mButtonMemFm[0] = (Button) activity.findViewById(R.id.button_mem_fm_1);
@@ -294,6 +297,32 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
             }
         });
 
+        mButtonSensitivity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.e(TAG,"sens is " + mSelectBtMachine.fmSensitivity);
+                switch (mSelectBtMachine.fmSensitivity) {
+                    case 1:
+                        Log.e(TAG,"sens1");
+                        mSelectBtMachine.setFmSensitivity(3);
+                        updateSensitivity();
+                        break;
+                    case 3:
+                        Log.e(TAG,"sens3");
+                        mSelectBtMachine.setFmSensitivity(5);
+                        updateSensitivity();
+                        break;
+                    case 5:
+                    default:
+                        Log.e(TAG,"sens5");
+                        mSelectBtMachine.setFmSensitivity(1);
+                        updateSensitivity();
+                        break;
+
+                }
+            }
+        });
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -320,7 +349,6 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         fab.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-//                beep();
                 saveIdeal();
                 return true;
             }
@@ -634,6 +662,31 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     }
 
     @Override
+    public void updateSensitivity() {
+        AnimatedVectorDrawable animationPlaySens;
+        switch (mSelectBtMachine.fmSensitivity) {
+
+            case 3:
+                animationPlaySens= (AnimatedVectorDrawable) getActivity().getDrawable(R.drawable.animated_sensitivity_2);
+                mButtonSensitivity.setBackground(animationPlaySens);
+                if (animationPlaySens != null) animationPlaySens.start();
+                break;
+            case 5:
+                animationPlaySens= (AnimatedVectorDrawable) getActivity().getDrawable(R.drawable.animated_sensitivity_3);
+                mButtonSensitivity.setBackground(animationPlaySens);
+                if (animationPlaySens != null) animationPlaySens.start();
+                break;
+            case 1:
+            default:
+                animationPlaySens= (AnimatedVectorDrawable) getActivity().getDrawable(R.drawable.animated_sensitivity_1);
+                mButtonSensitivity.setBackground(animationPlaySens);
+                if (animationPlaySens != null) animationPlaySens.start();
+                break;
+
+        }
+    }
+
+    @Override
     public void updateFmStation(FmStation station) {
         mFmStation.setText(station.showName());
         for (int i=0; i<NUM_FM_MEMORIES; i++) {
@@ -662,9 +715,6 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
             mButtonForcedMono.setBackground(animationPlayStereo);
             if (animationPlayStereo != null) animationPlayStereo.start();
         }
-
-
-
     }
 
     @Override

@@ -110,6 +110,15 @@
                     android:layout_alignTop="@+id/fm_station"
                     android:layout_toEndOf="@+id/fm_station" />
 
+                <Button
+                    android:id="@+id/button_sensitivity"
+                    style="@style/Widget.AppCompat.Button"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:background="@drawable/ic_sensitivity1"
+                    android:layout_alignBottom="@id/fm_station"
+                    android:layout_toEndOf="@+id/fm_station" />
+
 
                 <Button
                     android:id="@+id/button_mem_fm_5"

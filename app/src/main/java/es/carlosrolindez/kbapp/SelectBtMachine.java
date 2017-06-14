@@ -40,6 +40,7 @@ class SelectBtMachine {
     final FmStation fmStation;
 
     int equalization;
+    int fmSensitivity;
 
 
     private int questionPending;
@@ -61,6 +62,7 @@ class SelectBtMachine {
         //        void updateTrackName(String name);
         void updateForceMono(boolean forced);
         void updateMessage(String message);
+        void updateSensitivity();
     }
 
     void setSelectBtInterface(SelectBtInterface selectBtInterface) {
@@ -77,6 +79,7 @@ class SelectBtMachine {
         name = "SelectBtMachine";
         fmStation = new FmStation();
         equalization = EQ_OFF;
+        fmSensitivity = 1;
 
         questionPending = NO_QUESTION;
 
@@ -121,6 +124,11 @@ class SelectBtMachine {
 
     void scanFmDown() {
         writeScanDown();
+    }
+
+    void setFmSensitivity(int sens) {
+        fmSensitivity = sens;
+        writeSensitivity(fmSensitivity);
     }
 
     void setBtIdeal(int equ) {
@@ -187,6 +195,12 @@ class SelectBtMachine {
     private void writeVolumeFM(int volumeFM) {
         mSppComm.sendSppMessage("VOL " + String.valueOf(volumeFM) +"\r");
         if (mSelectBtInterface!=null)  mSelectBtInterface.updateMessage("<< VOL " + String.valueOf(volumeFM));
+    }
+
+
+    private void writeSensitivity(int sensitivity) {
+        mSppComm.sendSppMessage("SNS " + String.valueOf(sensitivity) +"\r");
+        if (mSelectBtInterface!=null)  mSelectBtInterface.updateMessage("<< SNS " + String.valueOf(sensitivity));
     }
 
     private void writeFMFrequency(String  FMFrequency) {
@@ -278,9 +292,8 @@ class SelectBtMachine {
 
                         SelectBtMachine.this.fmStation.setName(messageExtractor.getRDSFromMessage());
 
-                        String tunerSensitivity = messageExtractor.getStringFromMessage();
+                        fmSensitivity = Integer.parseInt(messageExtractor.getStringFromMessage());
                         equalization = Integer.parseInt(messageExtractor.getStringFromMessage());
-
                         volumeFM = Integer.parseInt(messageExtractor.getStringFromMessage());
 
                         String keepFmOn = messageExtractor.message;
@@ -291,6 +304,7 @@ class SelectBtMachine {
                             mSelectBtInterface.updateChannel();
                             mSelectBtInterface.updateFmStation(fmStation);
                             mSelectBtInterface.updateVolume();
+                            mSelectBtInterface.updateSensitivity();
                         }
 
                         questionPending = NO_QUESTION;

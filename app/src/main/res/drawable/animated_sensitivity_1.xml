@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/ic_sensitivity3">
+    <target
+        android:name="sens2_line"
+        android:animation="@animator/ic_path_unsens_morph"/>
+    <target
+        android:name="sens3_line"
+        android:animation="@animator/ic_path_unsens_morph"/>
+</animated-vector>
