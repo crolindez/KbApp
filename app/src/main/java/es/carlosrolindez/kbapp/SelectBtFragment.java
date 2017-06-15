@@ -11,7 +11,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.transition.TransitionManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -300,21 +299,17 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         mButtonSensitivity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.e(TAG,"sens is " + mSelectBtMachine.fmSensitivity);
                 switch (mSelectBtMachine.fmSensitivity) {
                     case 1:
-                        Log.e(TAG,"sens1");
+                        mSelectBtMachine.setFmSensitivity(2);
+                        updateSensitivity();
+                        break;
+                    case 2:
                         mSelectBtMachine.setFmSensitivity(3);
                         updateSensitivity();
                         break;
                     case 3:
-                        Log.e(TAG,"sens3");
-                        mSelectBtMachine.setFmSensitivity(5);
-                        updateSensitivity();
-                        break;
-                    case 5:
                     default:
-                        Log.e(TAG,"sens5");
                         mSelectBtMachine.setFmSensitivity(1);
                         updateSensitivity();
                         break;
@@ -666,12 +661,12 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         AnimatedVectorDrawable animationPlaySens;
         switch (mSelectBtMachine.fmSensitivity) {
 
-            case 3:
+            case 2:
                 animationPlaySens= (AnimatedVectorDrawable) getActivity().getDrawable(R.drawable.animated_sensitivity_2);
                 mButtonSensitivity.setBackground(animationPlaySens);
                 if (animationPlaySens != null) animationPlaySens.start();
                 break;
-            case 5:
+            case 3:
                 animationPlaySens= (AnimatedVectorDrawable) getActivity().getDrawable(R.drawable.animated_sensitivity_3);
                 mButtonSensitivity.setBackground(animationPlaySens);
                 if (animationPlaySens != null) animationPlaySens.start();

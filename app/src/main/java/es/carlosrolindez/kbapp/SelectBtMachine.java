@@ -292,7 +292,18 @@ class SelectBtMachine {
 
                         SelectBtMachine.this.fmStation.setName(messageExtractor.getRDSFromMessage());
 
-                        fmSensitivity = Integer.parseInt(messageExtractor.getStringFromMessage());
+                        switch (Integer.parseInt(messageExtractor.getStringFromMessage())) {
+                            case 3:
+                                fmSensitivity=2;
+                                break;
+                            case 5:
+                                fmSensitivity=3;
+                                break;
+                            case 1:
+                            default:
+                                fmSensitivity=1;
+                                break;
+                        }
                         equalization = Integer.parseInt(messageExtractor.getStringFromMessage());
                         volumeFM = Integer.parseInt(messageExtractor.getStringFromMessage());
 
