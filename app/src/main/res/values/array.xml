@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="equalization_values" >
+        <item>Off</item>
+        <item>Soft</item>
+        <item>Bass</item>
+        <item>Treble</item>
+        <item>Classical</item>
+        <item>Rock</item>
+        <item>Jazz</item>
+        <item>Pop</item>
+        <item>Dance</item>
+        <item>RnB</item>
+        <item>User</item>
+    </string-array>
+</resources>

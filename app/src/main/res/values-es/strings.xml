@@ -13,4 +13,10 @@
     <string name="SelectBtTitle">"Select BT"</string>
     <string name="ListDevicesTitle">"List of KBSound devices"</string>
 
+    <string name="audio_configuration">"Configuración de audio"</string>
+    <string name="power_on_configuration">"Configuración de Auto-encendido"</string>
+    <string name="master_on_off">"Salida Principal"</string>
+    <string name="slave_on_off">"Salida Auxiliar"</string>
+    <string name="keep_fm_on">"Mantener FM encendido"</string>
+
 </resources>

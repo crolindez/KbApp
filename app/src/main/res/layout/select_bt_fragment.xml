@@ -253,24 +253,6 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/menuLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="30dp"
-        android:background="@color/colorPrimaryDark"
-        android:orientation="vertical"
-        android:visibility="invisible">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:text="hola"
-            android:textColor="#fdfd00"
-            android:textSize="18sp" />
-    </LinearLayout>
-
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/idealButton"
         android:layout_width="50dp"
@@ -283,6 +265,90 @@
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="80dp"
         android:visibility="invisible"/>
+
+    <LinearLayout
+        android:id="@+id/menuLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimaryDark"
+        android:orientation="vertical"
+        android:visibility="invisible"
+        android:layout_margin="20dp"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/audio_configuration"
+            android:textColor="@color/colorAccent"
+            android:textSize="18sp"
+            tools:textAlignment="center" />
+
+        <View style="@style/Divider"/>
+
+
+        <Switch
+            android:id="@+id/master_on_off"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginBottom="5dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="15dp"
+            android:elevation="12dp"
+            android:text="@string/master_on_off"
+            android:textAlignment="center" />
+
+        <Switch
+            android:id="@+id/slave_on_off"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginBottom="5dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="5dp"
+            android:elevation="12dp"
+            android:text="@string/slave_on_off"
+            android:textAlignment="center" />
+
+        <Switch
+            android:id="@+id/keep_fm_on"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginBottom="5dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="5dp"
+            android:elevation="12dp"
+            android:text="@string/keep_fm_on"
+            android:textAlignment="center" />
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="15dp"
+            android:text="@string/power_on_configuration"
+            android:textColor="@color/colorAccent"
+            android:textSize="18sp"
+            tools:textAlignment="center" />
+
+        <View style="@style/Divider"/>
+
+    </LinearLayout>
 
 </RelativeLayout>
 

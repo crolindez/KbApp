@@ -15,12 +15,14 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -66,6 +68,8 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     private SeekBar volumeBar;
 
     private FloatingActionButton fab;
+
+    private Spinner spinner;
 
     private boolean monitorActive;
 
@@ -348,6 +352,13 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
                 return true;
             }
         });
+
+        spinner = (Spinner) getActivity().findViewById(R.id.spinner);
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
+                R.array.equalization_values, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
     }
 
 
@@ -377,11 +388,46 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     void showMenu() {
         if (mMenuLayout!=null) {
             mMenuLayout.setVisibility(View.VISIBLE);
+
+            onOffSwitch.setClickable(false);
+
+            fmButton.setClickable(false);
+            mButtonUp.setClickable(false);
+            mButtonDown.setClickable(false);
+            mButtonForcedMono.setClickable(false);
+            mButtonSensitivity.setClickable(false);
+            for (int i = 0;i<NUM_FM_MEMORIES; i++) {
+                mButtonMemFm[i].setClickable(false);
+            }
+            dabButton.setClickable(false);
+            btButton.setClickable(false);
+            monitorButton.setClickable(false);
+
+            volumeBar.setVisibility(View.INVISIBLE);
+            fab.setVisibility(View.INVISIBLE);
         }
     }
 
     void hideMenu() {
-        if (mMenuLayout!=null) mMenuLayout.setVisibility(View.INVISIBLE);
+        if (mMenuLayout!=null) {
+            mMenuLayout.setVisibility(View.INVISIBLE);
+
+            onOffSwitch.setClickable(true);
+
+            fmButton.setClickable(true);
+            mButtonUp.setClickable(true);
+            mButtonDown.setClickable(true);
+            mButtonForcedMono.setClickable(true);
+            mButtonSensitivity.setClickable(true);
+            for (int i = 0;i<NUM_FM_MEMORIES; i++) {
+                mButtonMemFm[i].setClickable(true);
+            }
+            dabButton.setClickable(true);
+            btButton.setClickable(true);
+            monitorButton.setClickable(true);
+
+            showVolumeBar();
+        }
     }
 
     private void saveFmMemory(FmStation station, int numMemory) {
@@ -586,6 +632,7 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     }
 
     private void showVolumeBar() {
+
         if (mSelectBtMachine.onOff) {
             switch (mSelectBtMachine.channel) {
                 case SelectBtMachine.FM_CHANNEL:
