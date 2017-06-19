@@ -28,9 +28,9 @@ class SelectBtMachine {
 
     private static final int NO_QUESTION = 0;
     private static final int QUESTION_ALL = 1;
-    //	public static final int RDS = 2;
-    //	public static final int BTID = 3;
-    //	public static final int FREQUENCY = 4;
+    public static final int QUESTION_FRW = 2;
+    public static final int QUESTION_PRD = 3;
+    public static final int QUESTION_MDL= 4;
     private static final int QUESTION_MON = 5;
 
     boolean onOff;
@@ -41,6 +41,16 @@ class SelectBtMachine {
 
     int equalization;
     int fmSensitivity;
+
+    boolean masterOnOff;
+    boolean slaveOnOff;
+    boolean autoPowerMaster;
+    boolean autoPowerSlave;
+    boolean keepFmOn;
+
+    String firmware;
+    String productName;
+    String model;
 
 
     private int questionPending;
@@ -63,6 +73,16 @@ class SelectBtMachine {
         void updateForceMono(boolean forced);
         void updateMessage(String message);
         void updateSensitivity();
+        void updateMasterOnOff();
+        void updateSlaveOnOff();
+        void updateAutoPowerMaster();
+        void updateAutoPowerSlave();
+        void updateKeepFmOn();
+
+        void updateFirmware();
+        void updateProductName();
+        void updateModel();
+
     }
 
     void setSelectBtInterface(SelectBtInterface selectBtInterface) {
@@ -80,6 +100,16 @@ class SelectBtMachine {
         fmStation = new FmStation();
         equalization = EQ_OFF;
         fmSensitivity = 1;
+
+        masterOnOff = true;
+        slaveOnOff = true;
+        autoPowerMaster = false;
+        autoPowerSlave = false;
+        keepFmOn = false;
+
+        firmware = null;
+        productName = null;
+        model = null;
 
         questionPending = NO_QUESTION;
 
@@ -152,6 +182,57 @@ class SelectBtMachine {
         }, 250);
     }
 
+    void setMasterOnOff(boolean masterOn) {
+        if (masterOnOff==masterOn) return;
+            masterOnOff = masterOn;
+            writeMasterOnOff(masterOnOff);
+            if(!masterOnOff && ! slaveOnOff) {
+                slaveOnOff = true;
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        writeSlaveOnOff(slaveOnOff);
+                        if (mSelectBtInterface != null) mSelectBtInterface.updateSlaveOnOff();
+                    }
+                }, 250);
+            }
+    }
+
+    void setSlaveOnOff(boolean slaveOn) {
+        if (slaveOnOff==slaveOn) return;
+        slaveOnOff = slaveOn;
+        writeSlaveOnOff(slaveOnOff);
+        if(!masterOnOff && ! slaveOnOff) {
+            masterOnOff = true;
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    writeMasterOnOff(masterOnOff);
+                    if (mSelectBtInterface != null) mSelectBtInterface.updateMasterOnOff();
+                }
+            }, 250);
+        }
+    }
+
+    void setAutoMasterOnOff(boolean masterOn) {
+        if (autoPowerMaster==masterOn) return;
+        autoPowerMaster = masterOn;
+        writeAutoMasterOnOff(autoPowerMaster);
+    }
+
+    void setAutoSlaveOnOff(boolean slaveOn) {
+        if (autoPowerSlave==slaveOn) return;
+        autoPowerSlave = slaveOn;
+        writeAutoSlaveOnOff(autoPowerSlave);
+    }
+
+    void setKeepFmOn(boolean keep) {
+        if (keepFmOn==keep) return;
+        keepFmOn = keep;
+        writeKeepFmOn(keepFmOn);
+    }
+
+
 
     //**********************************************
     // Access to BT Spp by means of sendSppMessage
@@ -167,6 +248,24 @@ class SelectBtMachine {
         mSppComm.sendSppMessage("MON ?\r");
         if (mSelectBtInterface!=null)  mSelectBtInterface.updateMessage("<< MON ?");
         questionPending = QUESTION_MON;
+    }
+
+    void askProductName() {
+        mSppComm.sendSppMessage("PRD ?\r");
+        if (mSelectBtInterface!=null)  mSelectBtInterface.updateMessage("<< PRD ?");
+        questionPending = QUESTION_PRD;
+    }
+
+    void askModel() {
+        mSppComm.sendSppMessage("MDL ?\r");
+        if (mSelectBtInterface!=null)  mSelectBtInterface.updateMessage("<< MDL ?");
+        questionPending = QUESTION_MDL;
+    }
+
+    void askFirmware() {
+        mSppComm.sendSppMessage("FRW ?\r");
+        if (mSelectBtInterface!=null)  mSelectBtInterface.updateMessage("<< FRW ?");
+        questionPending = QUESTION_FRW;
     }
 
     private void writeOnOff(boolean onOff) {
@@ -239,6 +338,57 @@ class SelectBtMachine {
 
     }
 
+    private void writeMasterOnOff(boolean masterOnOff) {
+        if (masterOnOff) {
+            mSppComm.sendSppMessage("STM ON\r");
+            if (mSelectBtInterface!=null)  mSelectBtInterface.updateMessage("<< STM ON");
+        } else {
+            mSppComm.sendSppMessage("STM OFF\r");
+            if (mSelectBtInterface != null) mSelectBtInterface.updateMessage("<< STM OFF");
+        }
+    }
+
+    private void writeSlaveOnOff(boolean slaveOnOff) {
+        if (slaveOnOff) {
+            mSppComm.sendSppMessage("STS ON\r");
+            if (mSelectBtInterface!=null)  mSelectBtInterface.updateMessage("<< STS ON");
+        } else {
+            mSppComm.sendSppMessage("STS OFF\r");
+            if (mSelectBtInterface != null) mSelectBtInterface.updateMessage("<< STS OFF");
+        }
+    }
+
+    private void writeAutoMasterOnOff(boolean masterOnOff) {
+        if (masterOnOff) {
+            mSppComm.sendSppMessage("APM ON\r");
+            if (mSelectBtInterface!=null)  mSelectBtInterface.updateMessage("<< APM ON");
+        } else {
+            mSppComm.sendSppMessage("APM OFF\r");
+            if (mSelectBtInterface != null) mSelectBtInterface.updateMessage("<< APM OFF");
+        }
+    }
+
+    private void writeAutoSlaveOnOff(boolean slaveOnOff) {
+        if (slaveOnOff) {
+            mSppComm.sendSppMessage("APS ON\r");
+            if (mSelectBtInterface!=null)  mSelectBtInterface.updateMessage("<< APS ON");
+        } else {
+            mSppComm.sendSppMessage("APS OFF\r");
+            if (mSelectBtInterface != null) mSelectBtInterface.updateMessage("<< APS OFF");
+        }
+    }
+
+
+    private void writeKeepFmOn(boolean keep) {
+        if (keep) {
+            mSppComm.sendSppMessage("KFM ON\r");
+            if (mSelectBtInterface!=null)  mSelectBtInterface.updateMessage("<< KFM ON");
+        } else {
+            mSppComm.sendSppMessage("KFM OFF\r");
+            if (mSelectBtInterface != null) mSelectBtInterface.updateMessage("<< KFM OFF");
+        }
+    }
+
     //**********************************************
     // Interpreter of Bt Spp Message.
     // Translates message -> changes state value -> updates view by means of SelectBtInterface
@@ -258,6 +408,7 @@ class SelectBtMachine {
                 SelectBtMachine.this.fmStation.setFrequency(messageExtractor.getStringFromMessage());
                 if (mSelectBtInterface != null) mSelectBtInterface.updateFmStation(fmStation);
                 break;
+
             default:
                 messageExtractor = new MessageExtractor(m);
                 switch (questionPending) {
@@ -268,12 +419,21 @@ class SelectBtMachine {
                         name = messageExtractor.getIdentifierFromMessage();
 
                         String onOffString = messageExtractor.getStringFromMessage();
-                        onOff = !onOffString.equals("OFF");
+                        onOff = onOffString.equals("ON");
 
-                        String standByMasterSettings = messageExtractor.getStringFromMessage();
-                        String standBySlaveSettings = messageExtractor.getStringFromMessage();
-                        String autoPowerMaster = messageExtractor.getStringFromMessage();
-                        String autoPowerSlave = messageExtractor.getStringFromMessage();
+                        onOffString = messageExtractor.getStringFromMessage();
+                        masterOnOff = onOffString.equals("ON");
+
+                        onOffString = messageExtractor.getStringFromMessage();
+                        slaveOnOff = onOffString.equals("ON");
+
+                        onOffString = messageExtractor.getStringFromMessage();
+                        autoPowerMaster = onOffString.equals("ON");
+
+                        onOffString = messageExtractor.getStringFromMessage();
+                        autoPowerSlave = onOffString.equals("ON");
+
+
                         String autoPowerVolume = messageExtractor.getStringFromMessage();
                         String autoPowerFM = messageExtractor.getStringFromMessage();
                         String autoPowerEQ = messageExtractor.getStringFromMessage();
@@ -307,7 +467,10 @@ class SelectBtMachine {
                         equalization = Integer.parseInt(messageExtractor.getStringFromMessage());
                         volumeFM = Integer.parseInt(messageExtractor.getStringFromMessage());
 
-                        String keepFmOn = messageExtractor.message;
+
+                        onOffString = messageExtractor.message;
+                        keepFmOn = onOffString.equals("ON");
+
 
                         if (mSelectBtInterface != null) {
                             mSelectBtInterface.updateName(name);
@@ -316,6 +479,11 @@ class SelectBtMachine {
                             mSelectBtInterface.updateFmStation(fmStation);
                             mSelectBtInterface.updateVolume();
                             mSelectBtInterface.updateSensitivity();
+                            mSelectBtInterface.updateMasterOnOff();
+                            mSelectBtInterface.updateSlaveOnOff();
+                            mSelectBtInterface.updateAutoPowerMaster();
+                            mSelectBtInterface.updateAutoPowerSlave();
+                            mSelectBtInterface.updateKeepFmOn();
                         }
 
                         questionPending = NO_QUESTION;
@@ -343,6 +511,58 @@ class SelectBtMachine {
                                 mSelectBtInterface.updateForceMono(false);
                         }
 
+                        questionPending = NO_QUESTION;
+
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                askFirmware();
+                            }
+                        },250);
+
+
+                        break;
+
+                    case QUESTION_FRW:
+                        messageExtractor.removeCR();
+                        firmware = messageExtractor.message;
+                        if (mSelectBtInterface != null)
+                            mSelectBtInterface.updateFirmware();
+
+                        questionPending = NO_QUESTION;
+
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                askProductName();
+                            }
+                        },250);
+
+
+                        break;
+
+                    case QUESTION_PRD:
+                        messageExtractor.removeCR();
+                        productName = messageExtractor.message;
+                        if (mSelectBtInterface != null)
+                            mSelectBtInterface.updateProductName();
+
+                        questionPending = NO_QUESTION;
+
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                askModel();
+                            }
+                        },250);
+
+                        break;
+
+                    case QUESTION_MDL:
+                        messageExtractor.removeCR();
+                        model = messageExtractor.message;
+                        if (mSelectBtInterface != null)
+                            mSelectBtInterface.updateModel();
 
                         questionPending = NO_QUESTION;
                         break;

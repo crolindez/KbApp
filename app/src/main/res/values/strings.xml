@@ -23,9 +23,20 @@
 
     <string name="audio_configuration">"Audio configuration"</string>
     <string name="power_on_configuration">"Power On configuration"</string>
+    <string name="power_on_explanation">"( How I will start after being powered ON )"</string>
+    <string name="bt_configuration">"Bluetooth configuration"</string>
+    <string name="equalization">"Equalization"</string>
     <string name="master_on_off">"Master output"</string>
     <string name="slave_on_off">"Slave output"</string>
-    <string name="keep_fm_on">"Keep FM On"</string>
+    <string name="keep_fm_on">"Keep FM On\n( if BT is disconnected )"</string>
+    <string name="auto_volume">"Volume:"</string>
+    <string name="auto_fm_station">"Fm station:"</string>
+    <string name="auto_equalization">"Equalization:"</string>
+    <string name="store_state">"Use current state"</string>
+    <string name="device_name">"Select BT name:  "</string>
+    <string name="firmware">"Firmware:  "</string>
+    <string name="product_name">"Product name:  "</string>
+    <string name="model_number">"Model number:  "</string>
 
 
 

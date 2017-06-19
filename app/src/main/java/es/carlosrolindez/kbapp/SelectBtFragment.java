@@ -28,7 +28,6 @@ import android.widget.TextView;
 
 
 // TODO Sometimes RDS arrives to late.
-// TODO Setting sheet does not block buttons below  -- New Fragment?
 
 
 
@@ -55,7 +54,7 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     private Button[] mButtonMemFm;
     private Button dabButton;
     private RelativeLayout mDabLayout;
-    private LinearLayout mMenuLayout;
+    private ScrollView mMenuLayout;
 
     private Button btButton;
     private RelativeLayout mBtLayout;
@@ -68,6 +67,17 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     private SeekBar volumeBar;
 
     private FloatingActionButton fab;
+
+    private Switch masterOnOffSwitch;
+    private Switch slaveOnOffSwitch;
+    private Switch autoPowerMasterSwitch;
+    private Switch autoPowerSlaveSwitch;
+    private Switch keepFmOnSwitch;
+
+    private TextView mName;
+    private TextView mFirmware;
+    private TextView mProductName;
+    private TextView mModel;
 
     private Spinner spinner;
 
@@ -116,7 +126,7 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         selectBtLayout = (LinearLayout) activity.findViewById(R.id.selectBt);
         monitorActive = false;
 
-        mMenuLayout = (LinearLayout) activity.findViewById(R.id.menuLayout);
+        mMenuLayout = (ScrollView) activity.findViewById(R.id.menuLayout);
 
         nameSelectBt = (TextView) activity.findViewById(R.id.selectBtName);
         onOffSwitch = (Switch) activity.findViewById(R.id.switch_on_off);
@@ -352,6 +362,70 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
                 return true;
             }
         });
+
+        /***********************************************************************
+        /  Configuration sheet
+        ***********************************************************************/
+
+        masterOnOffSwitch = (Switch) activity.findViewById(R.id.master_on_off);
+        masterOnOffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mSelectBtMachine.isSetSelectInterface()) {
+                    mSelectBtMachine.setMasterOnOff(isChecked);
+                }
+            }
+        });
+
+        slaveOnOffSwitch = (Switch) activity.findViewById(R.id.slave_on_off);
+        slaveOnOffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mSelectBtMachine.isSetSelectInterface()) {
+                    mSelectBtMachine.setSlaveOnOff(isChecked);
+                }
+            }
+        });
+
+        autoPowerMasterSwitch = (Switch) activity.findViewById(R.id.auto_master_on_off);
+        autoPowerMasterSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mSelectBtMachine.isSetSelectInterface()) {
+                    mSelectBtMachine.setAutoMasterOnOff(isChecked);
+                }
+            }
+        });
+
+
+        autoPowerSlaveSwitch = (Switch) activity.findViewById(R.id.auto_slave_on_off);
+        autoPowerSlaveSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mSelectBtMachine.isSetSelectInterface()) {
+                    mSelectBtMachine.setAutoSlaveOnOff(isChecked);
+                }
+            }
+        });
+
+        keepFmOnSwitch = (Switch) activity.findViewById(R.id.keep_fm_on);
+        keepFmOnSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mSelectBtMachine.isSetSelectInterface()) {
+                    mSelectBtMachine.setKeepFmOn(isChecked);
+                }
+            }
+        });
+
+
+        mName = (TextView) activity.findViewById(R.id.bt_name);
+        mName.setText(activity.getResources().getString(R.string.device_name));
+
+        mFirmware = (TextView) activity.findViewById(R.id.firmware);
+        mFirmware.setText(activity.getResources().getString(R.string.firmware));
+
+        mProductName = (TextView) activity.findViewById(R.id.product_name);
+        mProductName.setText(activity.getResources().getString(R.string.product_name));
+
+        mModel = (TextView) activity.findViewById(R.id.model_number);
+        mModel.setText(activity.getResources().getString(R.string.model_number));
+
 
         spinner = (Spinner) getActivity().findViewById(R.id.spinner);
 
@@ -676,6 +750,7 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     @Override
     public void updateName(String name) {
         nameSelectBt.setText(name);
+        mName.setText(getActivity().getResources().getString(R.string.device_name) + name);
     }
 
     @Override
@@ -772,4 +847,46 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         });
 
     }
+
+    @Override
+    public void updateMasterOnOff(){
+        masterOnOffSwitch.setChecked(mSelectBtMachine.masterOnOff);
+    }
+
+    @Override
+    public void updateSlaveOnOff(){
+        slaveOnOffSwitch.setChecked(mSelectBtMachine.slaveOnOff);
+    }
+
+    @Override
+    public void updateAutoPowerMaster(){
+        autoPowerMasterSwitch.setChecked(mSelectBtMachine.autoPowerMaster);
+    }
+
+    @Override
+    public void updateAutoPowerSlave(){
+        autoPowerSlaveSwitch.setChecked(mSelectBtMachine.autoPowerSlave);
+    }
+
+    @Override
+    public void updateKeepFmOn(){
+        keepFmOnSwitch.setChecked(mSelectBtMachine.keepFmOn);
+    }
+
+    @Override
+    public void updateFirmware(){
+        mFirmware.setText(getActivity().getResources().getString(R.string.firmware) + mSelectBtMachine.firmware);
+    }
+
+    @Override
+    public void updateProductName(){
+        mProductName.setText(getActivity().getResources().getString(R.string.product_name) + mSelectBtMachine.productName);
+    }
+
+    @Override
+    public void updateModel() {
+        mModel.setText(getActivity().getResources().getString(R.string.model_number) + mSelectBtMachine.model);
+    }
+
+
 }

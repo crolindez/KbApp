@@ -15,8 +15,19 @@
 
     <string name="audio_configuration">"Configuración de audio"</string>
     <string name="power_on_configuration">"Configuración de Auto-encendido"</string>
+    <string name="power_on_explanation">"( Cómo empezaré cuando des la luz )"</string>
+    <string name="bt_configuration">"Configuración Bluetooth"</string>
+    <string name="equalization">"Ecualización"</string>
     <string name="master_on_off">"Salida Principal"</string>
     <string name="slave_on_off">"Salida Auxiliar"</string>
-    <string name="keep_fm_on">"Mantener FM encendido"</string>
+    <string name="keep_fm_on">"Mantener FM encendido\n( si desconectas el BT )"</string>
+    <string name="auto_volume">"Volumen:"</string>
+    <string name="auto_fm_station">"Emisorar Fm:"</string>
+    <string name="auto_equalization">"Ecualización:"</string>
+    <string name="store_state">"Utilizar estado actual"</string>
+    <string name="device_name">"Nombre del Select BT:  "</string>
+    <string name="firmware">"Firmware:  "</string>
+    <string name="product_name">Nombre del producto:  "</string>
+    <string name="model_number">"Número de modelo:  "</string>
 
 </resources>

@@ -266,89 +266,282 @@
         android:layout_marginBottom="80dp"
         android:visibility="invisible"/>
 
-    <LinearLayout
+    <ScrollView
         android:id="@+id/menuLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorPrimaryDark"
-        android:orientation="vertical"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="15dp"
         android:visibility="invisible"
-        android:layout_margin="20dp"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true">
+        android:scrollbars="vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="10dp"
-            android:text="@string/audio_configuration"
-            android:textColor="@color/colorAccent"
-            android:textSize="18sp"
-            tools:textAlignment="center" />
-
-        <View style="@style/Divider"/>
-
-
-        <Switch
-            android:id="@+id/master_on_off"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginBottom="5dp"
-            android:layout_marginEnd="30dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginTop="15dp"
-            android:elevation="12dp"
-            android:text="@string/master_on_off"
-            android:textAlignment="center" />
+            android:background="@color/colorPrimaryDark"
+            android:orientation="vertical"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp">
 
-        <Switch
-            android:id="@+id/slave_on_off"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginBottom="5dp"
-            android:layout_marginEnd="30dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginTop="5dp"
-            android:elevation="12dp"
-            android:text="@string/slave_on_off"
-            android:textAlignment="center" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="10dp"
+                android:text="@string/audio_configuration"
+                android:textColor="@color/colorAccent"
+                android:textSize="18sp"
+                tools:textAlignment="center" />
 
-        <Switch
-            android:id="@+id/keep_fm_on"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginBottom="5dp"
-            android:layout_marginEnd="30dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginTop="5dp"
-            android:elevation="12dp"
-            android:text="@string/keep_fm_on"
-            android:textAlignment="center" />
+            <View style="@style/Divider"/>
 
-        <Spinner
-            android:id="@+id/spinner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="15dp"
-            android:text="@string/power_on_configuration"
-            android:textColor="@color/colorAccent"
-            android:textSize="18sp"
-            tools:textAlignment="center" />
+            <Switch
+                android:id="@+id/master_on_off"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginBottom="5dp"
+                android:layout_marginEnd="30dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="15dp"
+                android:elevation="12dp"
+                android:text="@string/master_on_off"
+                android:textAlignment="center" />
 
-        <View style="@style/Divider"/>
+            <Switch
+                android:id="@+id/slave_on_off"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginBottom="5dp"
+                android:layout_marginEnd="30dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="5dp"
+                android:elevation="12dp"
+                android:text="@string/slave_on_off"
+                android:textAlignment="center" />
 
-    </LinearLayout>
+            <Switch
+                android:id="@+id/keep_fm_on"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginBottom="5dp"
+                android:layout_marginEnd="30dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="5dp"
+                android:elevation="12dp"
+                android:text="@string/keep_fm_on"
+                android:textAlignment="center" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center|start"
+                    android:layout_marginStart="30dp"
+                    android:layout_weight="3"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:text="@string/equalization"
+                    android:textAlignment="center"
+                    android:textColor="@android:color/black"
+                    android:textSize="14sp"
+                    tools:textAlignment="center" />
+
+                <Spinner
+                    android:id="@+id/spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="30dp"
+                    android:layout_weight="1"
+                    android:gravity="center"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="25dp"
+                android:text="@string/power_on_configuration"
+                android:textColor="@color/colorAccent"
+                android:textSize="18sp"
+                tools:textAlignment="center" />
+
+            <View style="@style/Divider"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
+                android:text="@string/power_on_explanation"
+                android:textColor="@android:color/black"
+                android:textSize="12sp"
+                tools:textAlignment="center" />
+
+            <Switch
+                android:id="@+id/auto_master_on_off"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginBottom="5dp"
+                android:layout_marginEnd="30dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="15dp"
+                android:elevation="12dp"
+                android:text="@string/master_on_off"
+                android:textAlignment="center" />
+
+            <Switch
+                android:id="@+id/auto_slave_on_off"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginBottom="5dp"
+                android:layout_marginEnd="30dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="5dp"
+                android:elevation="12dp"
+                android:text="@string/master_on_off"
+                android:textAlignment="center" />
+
+            <TextView
+                android:id="@+id/auto_volume"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="@string/auto_volume"
+                android:textAlignment="center"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                tools:textAlignment="center" />
+
+            <TextView
+                android:id="@+id/auto_fm_station"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="@string/auto_fm_station"
+                android:textAlignment="center"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                tools:textAlignment="center" />
+
+            <TextView
+                android:id="@+id/auto_equalization"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="@string/auto_equalization"
+                android:textAlignment="center"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                tools:textAlignment="center" />
+
+            <Button
+                android:id="@+id/button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="50dp"
+                android:layout_marginStart="50dp"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="@string/store_state"
+                android:textAllCaps="false"
+                android:textSize="12sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="25dp"
+                android:text="@string/bt_configuration"
+                android:textColor="@color/colorAccent"
+                android:textSize="18sp"
+                tools:textAlignment="center" />
+
+            <View style="@style/Divider"/>
+
+            <TextView
+                android:id="@+id/bt_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="15dp"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="@string/device_name"
+                android:textAlignment="center"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                tools:textAlignment="center" />
+
+            <TextView
+                android:id="@+id/firmware"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="@string/firmware"
+                android:textAlignment="center"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                tools:textAlignment="center" />
+
+
+            <TextView
+                android:id="@+id/product_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="@string/product_name"
+                android:textAlignment="center"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                tools:textAlignment="center" />
+
+            <TextView
+                android:id="@+id/model_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="@string/model_number"
+                android:textAlignment="center"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                tools:textAlignment="center" />
+
+        </LinearLayout>
+    </ScrollView>
 
 </RelativeLayout>
 

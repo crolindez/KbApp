@@ -8,6 +8,8 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:spinnerItemStyle">@style/spinnerItemStyle</item>
+        <item name="android:spinnerDropDownItemStyle"> @style/spinnerDropDownItemStyle</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -25,10 +27,19 @@
 
     <style name="Divider">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">1px</item>
+        <item name="android:layout_height">2px</item>
         <item name="android:background">@color/colorAccent</item>
         <item name="android:layout_marginEnd">20dp</item>
         <item name="android:layout_marginStart">20dp</item>
+    </style>
+
+    <style name="spinnerItemStyle">
+        <item name="android:gravity">center_horizontal</item>
+    </style>
+
+    <style name="spinnerDropDownItemStyle">
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textAlignment">center</item>
     </style>
 
 </resources>
