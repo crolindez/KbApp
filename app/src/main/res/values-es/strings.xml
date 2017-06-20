@@ -30,4 +30,6 @@
     <string name="product_name">Nombre del producto:  "</string>
     <string name="model_number">"Número de modelo:  "</string>
 
+    <string name="only_dev">"Solo desarroladores"</string>
+
 </resources>

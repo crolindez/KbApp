@@ -460,6 +460,8 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     }
 
     void showMenu() {
+        if (mSelectBtMachine!=null) mSelectBtMachine.askFirmware();
+
         if (mMenuLayout!=null) {
             mMenuLayout.setVisibility(View.VISIBLE);
 

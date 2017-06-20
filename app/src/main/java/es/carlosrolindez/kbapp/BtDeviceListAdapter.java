@@ -17,6 +17,8 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.Locale;
+
 
 class BtDeviceListAdapter extends BaseAdapter {
 	private static String TAG = "BtDeviceListAdapter";
@@ -186,8 +188,13 @@ class BtDeviceListAdapter extends BaseAdapter {
         ImageView deleteButton = (ImageView) localView.findViewById(R.id.device_delete);
         RelativeLayout deleteLayout = (RelativeLayout)localView.findViewById(R.id.delete_list_layout);
 
-        TextView password = (TextView)localView.findViewById(R.id.password);
-		password.setText(""+password(device.getAddress()));
+        // only for Developer version
+        if (BuildConfig.FLAVOR.equals("Developer")) {
+        TextView password = (TextView) localView.findViewById(R.id.password);
+        if (password != null)
+            password.setText(String.format(Locale.US, "%04d", password(device.getAddress())));
+        }
+
         localView.setOnTouchListener(new SwipeView(mainLayout, deleteLayout, (ListView) parent, device, position, deleteButton));
 		return localView;
 	}
@@ -349,10 +356,12 @@ class BtDeviceListAdapter extends BaseAdapter {
 
                     } else { // left
                         unlock();
-                        params.rightMargin = -(int)deltaX;
-                        params.leftMargin = (int)deltaX;
-                        mainLayout.setLayoutParams(params);
-                        deleteLayout.setVisibility(View.INVISIBLE);
+                        if (kbDevice.deviceType==KbDevice.SELECTBT) {
+                            params.rightMargin = -(int) deltaX;
+                            params.leftMargin = (int) deltaX;
+                            mainLayout.setLayoutParams(params);
+                            deleteLayout.setVisibility(View.INVISIBLE);
+                        }
                     }
 
 

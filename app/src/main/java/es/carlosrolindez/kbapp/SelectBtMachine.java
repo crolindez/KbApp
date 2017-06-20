@@ -513,13 +513,6 @@ class SelectBtMachine {
 
                         questionPending = NO_QUESTION;
 
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                askFirmware();
-                            }
-                        },250);
-
 
                         break;
 
