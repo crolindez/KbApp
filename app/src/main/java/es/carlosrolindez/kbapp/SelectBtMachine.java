@@ -28,14 +28,14 @@ class SelectBtMachine {
 
     private static final int NO_QUESTION = 0;
     private static final int QUESTION_ALL = 1;
-    public static final int QUESTION_FRW = 2;
-    public static final int QUESTION_PRD = 3;
-    public static final int QUESTION_MDL= 4;
+    private static final int QUESTION_FRW = 2;
+    private static final int QUESTION_PRD = 3;
+    private static final int QUESTION_MDL= 4;
     private static final int QUESTION_MON = 5;
 
     boolean onOff;
     int channel;
-    int volumeFM;
+    int volumeFm;
     String name;
     final FmStation fmStation;
 
@@ -47,6 +47,9 @@ class SelectBtMachine {
     boolean autoPowerMaster;
     boolean autoPowerSlave;
     boolean keepFmOn;
+
+    int autoVolumeFm;
+    FmStation autoFmStation;
 
     String firmware;
     String productName;
@@ -69,15 +72,17 @@ class SelectBtMachine {
         void updateChannel();
         void updateVolume();
         void updateFmStation(FmStation station);
-        //        void updateTrackName(String name);
         void updateForceMono(boolean forced);
         void updateMessage(String message);
         void updateSensitivity();
         void updateMasterOnOff();
         void updateSlaveOnOff();
+        void updateEqualization();
         void updateAutoPowerMaster();
         void updateAutoPowerSlave();
         void updateKeepFmOn();
+        void updateAutoVolume();
+        void updateAutoFmStation();
 
         void updateFirmware();
         void updateProductName();
@@ -95,7 +100,7 @@ class SelectBtMachine {
     SelectBtMachine(SppComm sppComm) {
         onOff = false;
         channel = NO_CHANNEL;
-        volumeFM = MAX_VOLUME_FM/2;
+        volumeFm = MAX_VOLUME_FM/2;
         name = "SelectBtMachine";
         fmStation = new FmStation();
         equalization = EQ_OFF;
@@ -106,6 +111,9 @@ class SelectBtMachine {
         autoPowerMaster = false;
         autoPowerSlave = false;
         keepFmOn = false;
+
+        autoVolumeFm = MAX_VOLUME_FM/2;
+        autoFmStation = new FmStation("87.5");
 
         firmware = null;
         productName = null;
@@ -133,9 +141,9 @@ class SelectBtMachine {
         channel = numChannel;
     }
 
-    void setVolumeFM(int volume) {
-        volumeFM = volume;
-        writeVolumeFM(volumeFM);
+    void setVolumeFm(int volume) {
+        volumeFm = volume;
+        writeVolumeFM(volumeFm);
     }
 
     void setFmFrequency(String frequency) {
@@ -164,15 +172,15 @@ class SelectBtMachine {
     void setBtIdeal(int equ) {
         channel = BT_CHANNEL;
         equalization = equ;
-        writeIdeal(volumeFM,"BT",fmStation.getFrequency(),equ);
+        writeIdeal(volumeFm,"BT",fmStation.getFrequency(),equ);
     }
 
     void setFmIdeal(int volume,FmStation station,int equ) {
         channel = FM_CHANNEL;
-        volumeFM = volume;
+        volumeFm = volume;
         fmStation.copyStation(station);
         equalization = equ;
-        writeIdeal(volumeFM,"FM",fmStation.getFrequency(),equ);
+        writeIdeal(volumeFm,"FM",fmStation.getFrequency(),equ);
 
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -214,6 +222,18 @@ class SelectBtMachine {
         }
     }
 
+    void setKeepFmOn(boolean keep) {
+        if (keepFmOn==keep) return;
+        keepFmOn = keep;
+        writeKeepFmOn(keepFmOn);
+    }
+
+    void setEqualization(int equ) {
+        if (equalization==equ) return;
+        equalization = equ;
+        writeEqualization(equalization);
+    }
+
     void setAutoMasterOnOff(boolean masterOn) {
         if (autoPowerMaster==masterOn) return;
         autoPowerMaster = masterOn;
@@ -226,10 +246,10 @@ class SelectBtMachine {
         writeAutoSlaveOnOff(autoPowerSlave);
     }
 
-    void setKeepFmOn(boolean keep) {
-        if (keepFmOn==keep) return;
-        keepFmOn = keep;
-        writeKeepFmOn(keepFmOn);
+    void setAudioAuto(int volume, FmStation station) {
+        autoVolumeFm = volume;
+        autoFmStation.copyStation(station);
+        writeAudioAuto(autoVolumeFm,autoFmStation);
     }
 
 
@@ -389,6 +409,18 @@ class SelectBtMachine {
         }
     }
 
+    private void writeEqualization(int equalization) {
+        mSppComm.sendSppMessage("EQL " + String.valueOf(equalization) +"\r");
+        if (mSelectBtInterface!=null)  mSelectBtInterface.updateMessage("<< EQL " + String.valueOf(equalization));
+
+    }
+
+
+    private void writeAudioAuto(int volume, FmStation station) {
+        mSppComm.sendSppMessage("APW " + String.valueOf(volume) + " " + station.getFrequency() +"\r");
+        if (mSelectBtInterface!=null)  mSelectBtInterface.updateMessage("<< APW " + String.valueOf(volume) + " " + station.getFrequency());
+    }
+
     //**********************************************
     // Interpreter of Bt Spp Message.
     // Translates message -> changes state value -> updates view by means of SelectBtInterface
@@ -433,10 +465,9 @@ class SelectBtMachine {
                         onOffString = messageExtractor.getStringFromMessage();
                         autoPowerSlave = onOffString.equals("ON");
 
-
-                        String autoPowerVolume = messageExtractor.getStringFromMessage();
-                        String autoPowerFM = messageExtractor.getStringFromMessage();
-                        String autoPowerEQ = messageExtractor.getStringFromMessage();
+                        autoVolumeFm = Integer.parseInt(messageExtractor.getStringFromMessage());
+                        autoFmStation = new FmStation(messageExtractor.getStringFromMessage());
+                        String autoEqualization = messageExtractor.getStringFromMessage();
 
                         String channelString = messageExtractor.getStringFromMessage();
                         if (channelString.equals("BT")) {
@@ -465,7 +496,7 @@ class SelectBtMachine {
                                 break;
                         }
                         equalization = Integer.parseInt(messageExtractor.getStringFromMessage());
-                        volumeFM = Integer.parseInt(messageExtractor.getStringFromMessage());
+                        volumeFm = Integer.parseInt(messageExtractor.getStringFromMessage());
 
 
                         onOffString = messageExtractor.message;
@@ -484,6 +515,9 @@ class SelectBtMachine {
                             mSelectBtInterface.updateAutoPowerMaster();
                             mSelectBtInterface.updateAutoPowerSlave();
                             mSelectBtInterface.updateKeepFmOn();
+                            mSelectBtInterface.updateEqualization();
+                            mSelectBtInterface.updateAutoVolume();
+                            mSelectBtInterface.updateAutoFmStation();
                         }
 
                         questionPending = NO_QUESTION;

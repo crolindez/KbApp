@@ -36,6 +36,7 @@
 
     <style name="spinnerItemStyle">
         <item name="android:gravity">center_horizontal</item>
+        <item name="android:textSize">16sp</item>
     </style>
 
     <style name="spinnerDropDownItemStyle">

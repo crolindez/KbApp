@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -28,10 +29,16 @@ import android.widget.TextView;
 
 
 // TODO Sometimes RDS arrives to late.
+// TODO sometimes ask ALL fails
+// TODO edit name of device
+// TODO Function to guess password from MAC
+// TODO Quick access to switch OFF
+// TODO What happens when On fragment Select BT the BT connection gets broken
 
 
 
-public class SelectBtFragment extends Fragment implements SelectBtMachine.SelectBtInterface {
+public class SelectBtFragment extends Fragment implements SelectBtMachine.SelectBtInterface,
+        AdapterView.OnItemSelectedListener {
     private final static String TAG = "SelectBtFragment";
     private final static int NUM_FM_MEMORIES = 6;
 
@@ -73,13 +80,16 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     private Switch autoPowerMasterSwitch;
     private Switch autoPowerSlaveSwitch;
     private Switch keepFmOnSwitch;
+    private Spinner equalizationSpinner;
+
+    private TextView mAutoVolume;
+    private TextView mAutoFmStation;
+    private Button mStoreAudioAuto;
 
     private TextView mName;
     private TextView mFirmware;
     private TextView mProductName;
     private TextView mModel;
-
-    private Spinner spinner;
 
     private boolean monitorActive;
 
@@ -190,7 +200,7 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 if (mSelectBtMachine.channel==SelectBtMachine.FM_CHANNEL) {
-                    mSelectBtMachine.setVolumeFM(volumeBar.getProgress());
+                    mSelectBtMachine.setVolumeFm(volumeBar.getProgress());
                 } else if (mSelectBtMachine.channel==SelectBtMachine.BT_CHANNEL) {
                     AudioManager am = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
                     am.setStreamVolume(AudioManager.STREAM_MUSIC, volumeBar.getProgress(),	0);
@@ -292,7 +302,6 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
             mButtonMemFm[memoryCounter].setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
- //                   beep();
                     if (fmMemories[memoryCounter] == null) fmMemories[memoryCounter] = new FmStation();
                     fmMemories[memoryCounter].copyStation(mSelectBtMachine.fmStation);
                     saveFmMemory(fmMemories[memoryCounter],memoryCounter);
@@ -413,6 +422,20 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
             }
         });
 
+        mAutoVolume = (TextView) activity.findViewById(R.id.auto_volume);
+        mAutoFmStation = (TextView) activity.findViewById(R.id.auto_fm_station);
+        mStoreAudioAuto = (Button) activity.findViewById(R.id.storebutton);
+
+        mStoreAudioAuto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSelectBtMachine.setAudioAuto(mSelectBtMachine.volumeFm, mSelectBtMachine.fmStation);
+                updateAutoVolume();
+                updateAutoFmStation();
+
+            }
+        });
+
 
         mName = (TextView) activity.findViewById(R.id.bt_name);
         mName.setText(activity.getResources().getString(R.string.device_name));
@@ -427,12 +450,14 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         mModel.setText(activity.getResources().getString(R.string.model_number));
 
 
-        spinner = (Spinner) getActivity().findViewById(R.id.spinner);
+        equalizationSpinner = (Spinner) getActivity().findViewById(R.id.equalizationSpinner);
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
                 R.array.equalization_values, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
+        equalizationSpinner.setAdapter(adapter);
+
+        equalizationSpinner.setOnItemSelectedListener(this);
     }
 
 
@@ -550,7 +575,7 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
             edit.putString("IdealRDS",idealFmStation.getName());
             edit.putBoolean("IdealForcedMono",idealFmStation.isForcedMono());
 
-            idealFmVolume = mSelectBtMachine.volumeFM;
+            idealFmVolume = mSelectBtMachine.volumeFm;
             edit.putInt("IdealFmVolume",idealFmVolume);
         }
 
@@ -597,6 +622,20 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         updateChannel();
     }
 
+    //*************************************************************
+    //   spinner equalizer implementation
+    //*************************************************************
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view,
+                               int pos, long id) {
+        mSelectBtMachine.setEqualization(pos);
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+        // Another interface callback
+    }
 
     //*************************************************************
     //   Members for updating view
@@ -713,7 +752,7 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
             switch (mSelectBtMachine.channel) {
                 case SelectBtMachine.FM_CHANNEL:
                     volumeBar.setVisibility(View.VISIBLE);
-                    volumeBar.setProgress(mSelectBtMachine.volumeFM);
+                    volumeBar.setProgress(mSelectBtMachine.volumeFm);
                     fab.setVisibility(View.VISIBLE);
                     break;
                 case SelectBtMachine.BT_CHANNEL:
@@ -752,7 +791,7 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     @Override
     public void updateName(String name) {
         nameSelectBt.setText(name);
-        mName.setText(getActivity().getResources().getString(R.string.device_name) + name);
+        mName.setText(name);
     }
 
     @Override
@@ -774,7 +813,7 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
             AudioManager am = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
             volumeBar.setProgress(am.getStreamVolume(AudioManager.STREAM_MUSIC));
         } else if (mSelectBtMachine.channel==SelectBtMachine.FM_CHANNEL){
-            volumeBar.setProgress(mSelectBtMachine.volumeFM);
+            volumeBar.setProgress(mSelectBtMachine.volumeFm);
         }
 
 
@@ -850,6 +889,7 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
 
     }
 
+
     @Override
     public void updateMasterOnOff(){
         masterOnOffSwitch.setChecked(mSelectBtMachine.masterOnOff);
@@ -866,6 +906,11 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     }
 
     @Override
+    public void updateEqualization() {
+        equalizationSpinner.setSelection(mSelectBtMachine.equalization);
+    }
+
+    @Override
     public void updateAutoPowerSlave(){
         autoPowerSlaveSwitch.setChecked(mSelectBtMachine.autoPowerSlave);
     }
@@ -876,19 +921,30 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     }
 
     @Override
+    public void updateAutoVolume() {
+        mAutoVolume.setText(String.valueOf(mSelectBtMachine.autoVolumeFm));
+    }
+
+    @Override
+    public void updateAutoFmStation() {
+        mAutoFmStation.setText(mSelectBtMachine.autoFmStation.getFrequency()+ " MHz");
+    }
+
+    @Override
     public void updateFirmware(){
-        mFirmware.setText(getActivity().getResources().getString(R.string.firmware) + mSelectBtMachine.firmware);
+        mFirmware.setText(mSelectBtMachine.firmware);
     }
 
     @Override
     public void updateProductName(){
-        mProductName.setText(getActivity().getResources().getString(R.string.product_name) + mSelectBtMachine.productName);
+        mProductName.setText(mSelectBtMachine.productName);
     }
 
     @Override
     public void updateModel() {
-        mModel.setText(getActivity().getResources().getString(R.string.model_number) + mSelectBtMachine.model);
+        mModel.setText(mSelectBtMachine.model);
     }
+
 
 
 }

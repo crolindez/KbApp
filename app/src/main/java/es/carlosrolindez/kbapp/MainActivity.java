@@ -242,8 +242,13 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
                 break;
             case R.id.menu:
                 if (mSelectBtFragment!=null) {
-                    mSelectBtFragment.showMenu();
-                    menuActivated=true;
+                    if (menuActivated) {
+                        mSelectBtFragment.hideMenu();
+                        menuActivated = false;
+                    } else {
+                        mSelectBtFragment.showMenu();
+                        menuActivated = true;
+                    }
                 }
                 break;
         }
@@ -357,16 +362,6 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
     {
         if (mSelectBtFragment==null) return super.dispatchKeyEvent(event);
 
-
- //       if (!mSelectBtMachine.onOff) return super.dispatchKeyEvent(event);
-
- //       final AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
- //       int volume;
-
-
-//        if (!selectBtState.onOff)
-//            if (event.getKeyCode()==KeyEvent.KEYCODE_BACK)
-//                return super.dispatchKeyEvent(event);
         if (event.getAction() == KeyEvent.ACTION_DOWN)
         {
             switch (event.getKeyCode())
@@ -380,8 +375,8 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
                             am.setStreamVolume(AudioManager.STREAM_MUSIC, volume+1,	0);
                         }
                     } else if (mSelectBtMachine.channel==SelectBtMachine.FM_CHANNEL){
-                        if  (mSelectBtMachine.volumeFM < SelectBtMachine.MAX_VOLUME_FM) {
-                            mSelectBtMachine.setVolumeFM(mSelectBtMachine.volumeFM+1);
+                        if  (mSelectBtMachine.volumeFm < SelectBtMachine.MAX_VOLUME_FM) {
+                            mSelectBtMachine.setVolumeFm(mSelectBtMachine.volumeFm +1);
                         }
                     }
                     mSelectBtFragment.updateVolume();
@@ -396,20 +391,14 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
                             am.setStreamVolume(AudioManager.STREAM_MUSIC, volume-1,	0);
                         }
                     } else if (mSelectBtMachine.channel==SelectBtMachine.FM_CHANNEL){
-                        if  (mSelectBtMachine.volumeFM > 0) {
-                            mSelectBtMachine.setVolumeFM(mSelectBtMachine.volumeFM-1);
+                        if  (mSelectBtMachine.volumeFm > 0) {
+                            mSelectBtMachine.setVolumeFm(mSelectBtMachine.volumeFm -1);
                         }
                     }
                     mSelectBtFragment.updateVolume();
                     return true;
-//                case KeyEvent.KEYCODE_BACK:
-//                    return super.dispatchKeyEvent(event);
             }
         }
-//        else {
- //           if (event.getKeyCode()==KeyEvent.KEYCODE_BACK) return super.dispatchKeyEvent(event);
- //       }
-//        return true;
         return super.dispatchKeyEvent(event);
     }
 
