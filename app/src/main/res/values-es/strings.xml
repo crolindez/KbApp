@@ -11,7 +11,7 @@
     <string name="MonitorButton">Monitor</string>
 
     <string name="SelectBtTitle">"Select BT"</string>
-    <string name="ListDevicesTitle">"List of KBSound devices"</string>
+    <string name="ListDevicesTitle">"Mis kits KBSound "</string>
 
     <string name="audio_configuration">"Configuración de audio"</string>
     <string name="power_on_configuration">"Configuración de Auto-encendido"</string>

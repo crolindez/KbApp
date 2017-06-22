@@ -11,14 +11,17 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.transition.TransitionManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -30,7 +33,6 @@ import android.widget.TextView;
 
 // TODO Sometimes RDS arrives to late.
 // TODO sometimes ask ALL fails
-// TODO edit name of device
 // TODO Function to guess password from MAC
 // TODO Quick access to switch OFF
 // TODO What happens when On fragment Select BT the BT connection gets broken
@@ -86,7 +88,7 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     private TextView mAutoFmStation;
     private Button mStoreAudioAuto;
 
-    private TextView mName;
+    private EditText mNameEdit;
     private TextView mFirmware;
     private TextView mProductName;
     private TextView mModel;
@@ -437,8 +439,41 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         });
 
 
-        mName = (TextView) activity.findViewById(R.id.bt_name);
-        mName.setText(activity.getResources().getString(R.string.device_name));
+
+
+        mNameEdit = (EditText) activity.findViewById(R.id.bt_name);
+        mNameEdit.setText(activity.getResources().getString(R.string.device_name));
+        mNameEdit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
+                if (event==null) {
+                    if (actionId== EditorInfo.IME_ACTION_DONE) {
+                        // Capture soft enters in a singleLine EditText that is the last EditText.
+                        mSelectBtMachine.setName(mNameEdit.getText().toString());
+                        updateName();
+                    } else if (actionId==EditorInfo.IME_ACTION_NEXT) {
+                        // Capture soft enters in other singleLine EditTexts
+                        mSelectBtMachine.setName(mNameEdit.getText().toString());
+                        updateName();
+                    } //else return false;  // Let system handle all other null KeyEvents
+                }
+                else if (actionId==EditorInfo.IME_NULL) {
+                    // Capture most soft enters in multi-line EditTexts and all hard enters.
+                    // They supply a zero actionId and a valid KeyEvent rather than
+                    // a non-zero actionId and a null event like the previous cases.
+                    if (event.getAction()==KeyEvent.ACTION_DOWN){
+                        // We capture the event when key is first pressed.
+                        mSelectBtMachine.setName(mNameEdit.getText().toString());
+                        updateName();
+                    } // else  return true;   // We consume the event when the key is released.
+                } // else  return false;
+                // We let the system handle it when the listener
+                // is triggered by something that wasn't an enter.
+
+                return false;   // does not Consume the event
+            }
+        });
+
 
         mFirmware = (TextView) activity.findViewById(R.id.firmware);
         mFirmware.setText(activity.getResources().getString(R.string.firmware));
@@ -458,6 +493,8 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         equalizationSpinner.setAdapter(adapter);
 
         equalizationSpinner.setOnItemSelectedListener(this);
+
+
     }
 
 
@@ -611,7 +648,7 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
         if (mSelectBtMachine.isSetSelectInterface())
             if (mSelectBtMachine.onOff != state) {
                 mSelectBtMachine.setOnOff(state);
-                updateOnOff(mSelectBtMachine.onOff);
+                updateOnOff();
             }
     }
 
@@ -700,8 +737,8 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
             switch (mSelectBtMachine.channel) {
                 case SelectBtMachine.FM_CHANNEL:
                     fmButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorAccent));
-                    dabButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
-                    btButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
+                    dabButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorActive));
+                    btButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorActive));
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -710,9 +747,9 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
                     }, 500);
                     break;
                 case SelectBtMachine.DAB_CHANNEL:
-                    fmButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
+                    fmButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorActive));
                     dabButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorAccent));
-                    btButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
+                    btButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorActive));
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -721,8 +758,8 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
                     }, 500);
                     break;
                 case SelectBtMachine.BT_CHANNEL:
-                    fmButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
-                    dabButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimaryDark));
+                    fmButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorActive));
+                    dabButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorActive));
                     btButton.setTextColor(ContextCompat.getColor(getActivity(),R.color.colorAccent));
                     new Handler().postDelayed(new Runnable() {
                         @Override
@@ -789,14 +826,14 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
     //*************************************************************
 
     @Override
-    public void updateName(String name) {
-        nameSelectBt.setText(name);
-        mName.setText(name);
+    public void updateName() {
+        nameSelectBt.setText(mSelectBtMachine.selectBtName);
+        mNameEdit.setText(mSelectBtMachine.selectBtName);
     }
 
     @Override
-    public void updateOnOff(boolean onOff) {
-        onOffSwitch.setChecked(onOff);
+    public void updateOnOff() {
+        onOffSwitch.setChecked(mSelectBtMachine.onOff);
         updateChannel();
     }
 

@@ -36,7 +36,7 @@ class SelectBtMachine {
     boolean onOff;
     int channel;
     int volumeFm;
-    String name;
+    String selectBtName;
     final FmStation fmStation;
 
     int equalization;
@@ -67,8 +67,8 @@ class SelectBtMachine {
     }
 
     interface SelectBtInterface {
-        void updateName(String name);
-        void updateOnOff(boolean onOff);
+        void updateName();
+        void updateOnOff();
         void updateChannel();
         void updateVolume();
         void updateFmStation(FmStation station);
@@ -101,7 +101,7 @@ class SelectBtMachine {
         onOff = false;
         channel = NO_CHANNEL;
         volumeFm = MAX_VOLUME_FM/2;
-        name = "SelectBtMachine";
+        selectBtName = "SelectBtMachine";
         fmStation = new FmStation();
         equalization = EQ_OFF;
         fmSensitivity = 1;
@@ -130,11 +130,17 @@ class SelectBtMachine {
     //**********************************************
     // Change of state values + update of BT device
     //**********************************************
+
+    void setName(String name) {
+        if (selectBtName.equals(name)) return;
+        selectBtName=name;
+        writeName(name);
+    }
+
     void setOnOff(boolean on) {
         onOff = on;
         writeOnOff(onOff);
     }
-
 
     void setChannel(int numChannel) {
         writeChannel(numChannel);
@@ -286,6 +292,13 @@ class SelectBtMachine {
         mSppComm.sendSppMessage("FRW ?\r");
         if (mSelectBtInterface!=null)  mSelectBtInterface.updateMessage("<< FRW ?");
         questionPending = QUESTION_FRW;
+    }
+
+
+    private void writeName(String name) {
+        mSppComm.sendSppMessage("BID \""+name+"\"\r");
+        if (mSelectBtInterface!=null)  mSelectBtInterface.updateMessage("<< BID \""+name+"\"\r");
+
     }
 
     private void writeOnOff(boolean onOff) {
@@ -448,7 +461,7 @@ class SelectBtMachine {
 
                         String password = messageExtractor.getStringFromMessage();
 
-                        name = messageExtractor.getIdentifierFromMessage();
+                        selectBtName = messageExtractor.getIdentifierFromMessage();
 
                         String onOffString = messageExtractor.getStringFromMessage();
                         onOff = onOffString.equals("ON");
@@ -504,8 +517,8 @@ class SelectBtMachine {
 
 
                         if (mSelectBtInterface != null) {
-                            mSelectBtInterface.updateName(name);
-                            mSelectBtInterface.updateOnOff(onOff);
+                            mSelectBtInterface.updateName();
+                            mSelectBtInterface.updateOnOff();
                             mSelectBtInterface.updateChannel();
                             mSelectBtInterface.updateFmStation(fmStation);
                             mSelectBtInterface.updateVolume();
