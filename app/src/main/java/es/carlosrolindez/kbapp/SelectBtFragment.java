@@ -438,23 +438,29 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
             }
         });
 
-
-
-
         mNameEdit = (EditText) activity.findViewById(R.id.bt_name);
         mNameEdit.setText(activity.getResources().getString(R.string.device_name));
         mNameEdit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
+                String name = mNameEdit.getText().toString();
                 if (event==null) {
                     if (actionId== EditorInfo.IME_ACTION_DONE) {
                         // Capture soft enters in a singleLine EditText that is the last EditText.
-                        mSelectBtMachine.setName(mNameEdit.getText().toString());
-                        updateName();
+                        if (!name.isEmpty()) {
+                            mSelectBtMachine.setName(mNameEdit.getText().toString());
+                            updateName();
+                        } else {
+                            mNameEdit.setText(mSelectBtMachine.selectBtName);
+                        }
                     } else if (actionId==EditorInfo.IME_ACTION_NEXT) {
                         // Capture soft enters in other singleLine EditTexts
-                        mSelectBtMachine.setName(mNameEdit.getText().toString());
-                        updateName();
+                        if (!name.isEmpty()) {
+                            mSelectBtMachine.setName(mNameEdit.getText().toString());
+                            updateName();
+                        } else {
+                            mNameEdit.setText(mSelectBtMachine.selectBtName);
+                        }
                     } //else return false;  // Let system handle all other null KeyEvents
                 }
                 else if (actionId==EditorInfo.IME_NULL) {
@@ -463,8 +469,12 @@ public class SelectBtFragment extends Fragment implements SelectBtMachine.Select
                     // a non-zero actionId and a null event like the previous cases.
                     if (event.getAction()==KeyEvent.ACTION_DOWN){
                         // We capture the event when key is first pressed.
-                        mSelectBtMachine.setName(mNameEdit.getText().toString());
-                        updateName();
+                        if (!name.isEmpty()) {
+                            mSelectBtMachine.setName(mNameEdit.getText().toString());
+                            updateName();
+                        } else {
+                            mNameEdit.setText(mSelectBtMachine.selectBtName);
+                        }
                     } // else  return true;   // We consume the event when the key is released.
                 } // else  return false;
                 // We let the system handle it when the listener

@@ -166,7 +166,5 @@
     <orderEntry type="module" module-name="rfcomm" exported="" />
     <orderEntry type="module" module-name="btcomm" exported="" />
     <orderEntry type="library" exported="" name="android-android-25" level="project" />
-    <orderEntry type="module" module-name="rfcomm" exported="" />
-    <orderEntry type="module" module-name="btcomm" exported="" />
   </component>
 </module>
