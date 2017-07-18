@@ -407,7 +407,7 @@
                 android:layout_marginStart="30dp"
                 android:layout_marginTop="5dp"
                 android:elevation="12dp"
-                android:text="@string/master_on_off"
+                android:text="@string/slave_on_off"
                 android:textAlignment="viewStart" />
 
             <RelativeLayout

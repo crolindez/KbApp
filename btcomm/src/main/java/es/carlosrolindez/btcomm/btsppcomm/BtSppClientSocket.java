@@ -2,7 +2,6 @@ package es.carlosrolindez.btcomm.btsppcomm;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.util.Log;
 
 import java.io.IOException;
 
@@ -24,7 +23,7 @@ public class BtSppClientSocket extends RfClientSocket<BluetoothSocket,BluetoothD
             mSocket = device.createRfcommSocketToServiceRecord(BtConstants.SPP_UUID);
 
         } catch (IOException e) {
-            Log.e(TAG,"Spp Connected - Exception Creating socket");
+ //           Log.e(TAG,"Spp Connected - Exception Creating socket");
             e.printStackTrace();
             mSocket = null;
         }
@@ -36,8 +35,8 @@ public class BtSppClientSocket extends RfClientSocket<BluetoothSocket,BluetoothD
             mSocket.connect();
 
         } catch (IOException e) {
-            Log.e(TAG,"Spp Connected - Exception Connecting socket");
-            Log.e(TAG,e.toString());
+//            Log.e(TAG,"Spp Connected - Exception Connecting socket");
+//            Log.e(TAG,e.toString());
             try {
                 mSocket.close();
             } catch (IOException e2) {

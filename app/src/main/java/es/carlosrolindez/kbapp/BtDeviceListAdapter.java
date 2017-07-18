@@ -140,6 +140,7 @@ class BtDeviceListAdapter extends BaseAdapter {
                 bluetoothIcon.setVisibility(View.VISIBLE);
                 AnimatedVectorDrawable animationPlaySelect= (AnimatedVectorDrawable) mContext.getDrawable(R.drawable.animated_select);
                 bluetoothIcon.setImageDrawable(animationPlaySelect);
+//                bluetoothIcon.setImageDrawable(mContext.getDrawable(R.drawable.ic_select_bt));
                 bluetoothIcon.setClickable(true);
                 bluetoothIcon.setOnClickListener(new View.OnClickListener() {
                     @Override

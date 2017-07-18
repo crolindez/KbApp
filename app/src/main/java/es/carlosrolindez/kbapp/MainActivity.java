@@ -71,16 +71,15 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
                 if (mBtSppCommManager.isSocketConnected()) {
                     mainFragment.showSelectBtReady(mBtSppCommManager.getConnectedDevice());
                     setProgressBar(ActivityState.CONNECTED);
+//                    enterSelectBtFragment();
                 }
             } else if (intent.getAction().equals(RfCommManager.MESSAGE)) {
                 String readMessage = intent.getStringExtra(RfCommManager.message_content);
                 mSelectBtMachine.interpreter(readMessage);
             } else if (intent.getAction().equals(RfCommManager.STOPPED)) {
- //               Log.e(TAG,"Socket stopped");
                 if (mBtSppCommManager.isSocketConnected())
                     mBtSppCommManager.closeSocket();
             } else if (intent.getAction().equals(RfCommManager.CLOSED)) {
- //               Log.e(TAG,"Socket Closed");
             }
         }
     };
@@ -172,15 +171,25 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
     @Override
     protected void onResume() {
         super.onResume();
+
         if (!mBluetoothAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
         }
         else
             startRfListening();
-        if (mSelectBtFragment!=null)
-            if (!mBtSppCommManager.isSocketConnected())
+        if (mSelectBtFragment==null) {
+            if (mBtSppCommManager.isSocketConnected()) {
+                setProgressBar(ActivityState.CONNECTED);
+            } else {
+                setProgressBar(ActivityState.NOT_SCANNING);
+            }
+
+        } else {
+            if (!mBtSppCommManager.isSocketConnected()) {
                 onBackPressed();
+            }
+        }
 
     }
 
@@ -220,7 +229,6 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
         scanButton = menu.findItem(R.id.bt_scan);
         mMenuItem = menu.findItem(R.id.menu);
 
-
         if (mBtSppCommManager.isSocketConnected()) {
             setProgressBar(ActivityState.CONNECTED);
         } else {
@@ -257,7 +265,6 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
     }
 
     private void setProgressBar(ActivityState state) {
-
         switch (state) {
             case NOT_SCANNING:
                 mBluetoothAdapter.cancelDiscovery();
@@ -353,7 +360,11 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
             mSelectBtFragment = null;
         }
 
-        setProgressBar(ActivityState.CONNECTED);
+        if (mBtSppCommManager.isSocketConnected()) {
+            setProgressBar(ActivityState.CONNECTED);
+        } else {
+            setProgressBar(ActivityState.NOT_SCANNING);
+        }
 
     }
 
@@ -453,10 +464,10 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
     @Override
     public void notifyBtA2dpEvent(final BluetoothDevice device,  BtA2dpConnectionManager.BtA2dpEvent event) {
 
-
         switch (event) {
             case CONNECTED:
                 setProgressBar(ActivityState.CONNECTED);
+                if (device==null) return;
                 if (mainFragment!=null) mainFragment.showConnected(device);
                 if (KbDevice.getDeviceType(device.getAddress())==KbDevice.SELECTBT) {
                     if (!mBtSppCommManager.isSocketConnected()) {
@@ -477,13 +488,23 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
                 break;
 
             case DISCONNECTED:
+                if (mBtSppCommManager!=null) {
+                    if (mBtSppCommManager.isSocketConnected()) {
+                        mBtSppCommManager.stopSocket();
+                        if (mainFragment!=null) mainFragment.hideSelectBtReady();
+                    }
+                }
                 setProgressBar(ActivityState.NOT_SCANNING);
 
-                if (mainFragment!=null) mainFragment.showDisconnected(device);
+                if (device!=null)
+                    if(mainFragment!=null)
+                        mainFragment.showDisconnected(device);
                 break;
 
             case CHANGING:
-                if (mainFragment!=null) mainFragment.showInProgress(device);
+                if (device!=null)
+                    if (mainFragment!=null)
+                        mainFragment.showInProgress(device);
                 break;
 
         }
