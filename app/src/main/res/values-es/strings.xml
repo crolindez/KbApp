@@ -32,4 +32,6 @@
 
     <string name="only_dev">"Solo desarroladores"</string>
 
+    <string name="password_title">"Escribe tu MAC :"</string>
+
 </resources>

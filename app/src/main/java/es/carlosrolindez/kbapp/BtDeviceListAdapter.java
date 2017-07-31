@@ -193,7 +193,7 @@ class BtDeviceListAdapter extends BaseAdapter {
         if (BuildConfig.FLAVOR.equals("Developer")) {
         TextView password = (TextView) localView.findViewById(R.id.password);
         if (password != null)
-            password.setText(String.format(Locale.US, "%04d", password(device.getAddress())));
+            password.setText(String.format(Locale.US, "%04d", SecretClass.password(device.getAddress())));
         }
 
         localView.setOnTouchListener(new SwipeView(mainLayout, deleteLayout, (ListView) parent, device, position, deleteButton));
@@ -406,39 +406,4 @@ class BtDeviceListAdapter extends BaseAdapter {
 
 
     }
-
-
-
-    private long password(String MAC) {
-
-		String[] macAddressParts = MAC.split(":");
-		long littleMac = 0;
-		int rotation;
-		long code = 0;
-		long pin;
-
-		for(int i=2; i<6; i++) {
-			Long hex = Long.parseLong(macAddressParts[i], 16);
-			littleMac *= 256;
-			littleMac += hex;
-		}
-
-		rotation = Integer.parseInt(macAddressParts[5], 16) & 0x0f;
-
-		for(int i=0; i<4; i++) {
-			Long hex =  Long.parseLong(macAddressParts[i], 16);
-			code *= 256;
-			code += hex;
-		}
-		code = code >> rotation;
-		code &= 0xffff;
-
-		littleMac &= 0xffff;
-
-		pin = littleMac ^ code;
-		pin %= 10000;
-
-		return pin;
-
-	}
 }

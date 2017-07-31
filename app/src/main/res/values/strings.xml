@@ -39,4 +39,6 @@
 
     <string name="only_dev">"Only developers"</string>
 
+    <string name="password_title">"Type your MAC number :"</string>
+
 </resources>

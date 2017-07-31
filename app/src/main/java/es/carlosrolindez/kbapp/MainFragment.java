@@ -1,14 +1,21 @@
 package es.carlosrolindez.kbapp;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
+
+import java.util.Locale;
 
 public class MainFragment extends Fragment {
 
@@ -21,6 +28,8 @@ public class MainFragment extends Fragment {
     private ListView mListView = null;
     private BtConnectionInterface mBtInterface;
     private BtDeviceListAdapter.TransitionInterface mTransitionInterface;
+
+    private FloatingActionButton fab;
 
     @Override
     public void onAttach(Context context) {
@@ -64,6 +73,60 @@ public class MainFragment extends Fragment {
         mListView = (ListView)activity.findViewById(R.id.list);
         deviceListAdapter = new BtDeviceListAdapter(activity, deviceList, mBtInterface, mTransitionInterface );
         mListView.setAdapter(deviceListAdapter);
+
+        fab = (FloatingActionButton) activity.findViewById(R.id.keyButton);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LayoutInflater li = LayoutInflater.from(getContext());
+                View promptsView = li.inflate(R.layout.password_layout, null);
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+
+                // set prompts.xml to alertdialog builder
+                alertDialogBuilder.setView(promptsView);
+
+                final EditText userInput = (EditText) promptsView
+                        .findViewById(R.id.editTextDialogUserInput);
+
+                // set dialog message
+                alertDialogBuilder
+                        .setCancelable(false)
+                        .setPositiveButton("OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        // get user input and set it to result
+                                        // edit text
+                                        String MAC = userInput.getText().toString();
+                                        if (MAC.length()==12) {
+                                            String fullMAC = MAC.substring(0, 2) + ":" +
+                                                    MAC.substring(2, 4) + ":" +
+                                                    MAC.substring(4, 6) + ":" +
+                                                    MAC.substring(6, 8) + ":" +
+                                                    MAC.substring(8, 10) + ":" +
+                                                    MAC.substring(10, 12);
+                                            Toast.makeText(getContext(), String.format(Locale.US, "%04d", SecretClass.password(fullMAC)), Toast.LENGTH_LONG).show();
+                                        }
+                                    }
+                                })
+                        .setNegativeButton("Cancel",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+
+                // create alert dialog
+                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                // show it
+                alertDialog.show();
+
+
+
+            }
+        });
 
     }
 
