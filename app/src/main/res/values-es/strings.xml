@@ -34,4 +34,6 @@
 
     <string name="password_title">"Escribe tu MAC :"</string>
 
+    <string name="touch_to_stop">"Pulsa para parar la Música"</string>
+
 </resources>

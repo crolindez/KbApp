@@ -33,9 +33,7 @@ import android.widget.TextView;
 
 // TODO Sometimes RDS arrives to late.
 // TODO sometimes ask ALL fails
-// TODO Function to guess password from MAC
 // TODO Quick access to switch OFF
-// TODO What happens when On fragment Select BT the BT connection gets broken
 
 
 

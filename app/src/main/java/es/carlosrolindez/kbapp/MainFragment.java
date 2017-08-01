@@ -74,59 +74,62 @@ public class MainFragment extends Fragment {
         deviceListAdapter = new BtDeviceListAdapter(activity, deviceList, mBtInterface, mTransitionInterface );
         mListView.setAdapter(deviceListAdapter);
 
-        fab = (FloatingActionButton) activity.findViewById(R.id.keyButton);
+        if (BuildConfig.FLAVOR.equals("Developer")) {
+            fab = (FloatingActionButton) activity.findViewById(R.id.keyButton);
+            fab.setVisibility(View.VISIBLE);
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    LayoutInflater li = LayoutInflater.from(getContext());
+                    View promptsView = li.inflate(R.layout.password_layout, null);
 
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LayoutInflater li = LayoutInflater.from(getContext());
-                View promptsView = li.inflate(R.layout.password_layout, null);
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
 
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+                    // set prompts.xml to alertdialog builder
+                    alertDialogBuilder.setView(promptsView);
 
-                // set prompts.xml to alertdialog builder
-                alertDialogBuilder.setView(promptsView);
+                    final EditText userInput = (EditText) promptsView
+                            .findViewById(R.id.editTextDialogUserInput);
 
-                final EditText userInput = (EditText) promptsView
-                        .findViewById(R.id.editTextDialogUserInput);
-
-                // set dialog message
-                alertDialogBuilder
-                        .setCancelable(false)
-                        .setPositiveButton("OK",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,int id) {
-                                        // get user input and set it to result
-                                        // edit text
-                                        String MAC = userInput.getText().toString();
-                                        if (MAC.length()==12) {
-                                            String fullMAC = MAC.substring(0, 2) + ":" +
-                                                    MAC.substring(2, 4) + ":" +
-                                                    MAC.substring(4, 6) + ":" +
-                                                    MAC.substring(6, 8) + ":" +
-                                                    MAC.substring(8, 10) + ":" +
-                                                    MAC.substring(10, 12);
-                                            Toast.makeText(getContext(), String.format(Locale.US, "%04d", SecretClass.password(fullMAC)), Toast.LENGTH_LONG).show();
+                    // set dialog message
+                    alertDialogBuilder
+                            .setCancelable(false)
+                            .setPositiveButton("OK",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog,int id) {
+                                            // get user input and set it to result
+                                            // edit text
+                                            String MAC = userInput.getText().toString();
+                                            if (MAC.length()==12) {
+                                                String fullMAC = MAC.substring(0, 2) + ":" +
+                                                        MAC.substring(2, 4) + ":" +
+                                                        MAC.substring(4, 6) + ":" +
+                                                        MAC.substring(6, 8) + ":" +
+                                                        MAC.substring(8, 10) + ":" +
+                                                        MAC.substring(10, 12);
+                                                Toast.makeText(getContext(), String.format(Locale.US, "%04d", SecretClass.password(fullMAC)), Toast.LENGTH_LONG).show();
+                                            }
                                         }
-                                    }
-                                })
-                        .setNegativeButton("Cancel",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,int id) {
-                                        dialog.cancel();
-                                    }
-                                });
+                                    })
+                            .setNegativeButton("Cancel",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog,int id) {
+                                            dialog.cancel();
+                                        }
+                                    });
 
-                // create alert dialog
-                AlertDialog alertDialog = alertDialogBuilder.create();
+                    // create alert dialog
+                    AlertDialog alertDialog = alertDialogBuilder.create();
 
-                // show it
-                alertDialog.show();
-
+                    // show it
+                    alertDialog.show();
 
 
-            }
-        });
+
+                }
+            });
+
+        }
 
     }
 

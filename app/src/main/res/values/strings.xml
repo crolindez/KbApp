@@ -41,4 +41,6 @@
 
     <string name="password_title">"Type your MAC number :"</string>
 
+    <string name="touch_to_stop">"Type to Stop music"</string>
+
 </resources>

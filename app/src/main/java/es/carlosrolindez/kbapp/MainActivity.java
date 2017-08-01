@@ -1,6 +1,8 @@
 package es.carlosrolindez.kbapp;
 
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -10,10 +12,13 @@ import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
+
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -41,12 +46,17 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
     private static final int REQUEST_ENABLE_BT = 1;
 
+    private static final int COMMON_MODE = 0;
+    private static final int MUSIC_CANCEL_MODE = 9;
+
     private enum ActivityState {NOT_SCANNING, SCANNING, CONNECTED}
     private ActivityState activityState = ActivityState.NOT_SCANNING;
 
     private BluetoothAdapter mBluetoothAdapter = null;
     private BtListenerManager mBtListenerManager = null;
     private BtA2dpConnectionManager mBtA2dpConnectionManager = null;
+
+    private int activationMode;
 
     private MenuItem scanButton;
     private MenuItem mActionProgressItem;
@@ -100,6 +110,9 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
             finish();
         }
 
+        Intent intent = getIntent();
+        activationMode = intent.getIntExtra("requestCode",COMMON_MODE);
+
         FragmentManager fm = getSupportFragmentManager();
 
         ActionBar ab = getSupportActionBar();
@@ -132,11 +145,18 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
             }
 
         } else {
-            mBtSppCommManager = new BtSppCommManager(getApplicationContext());
-            mCommFragment = CommFragment.newInstance(mBtSppCommManager);
-            fm.beginTransaction()
-                    .add(mCommFragment, COMM_FRAGMENT)
-                    .commit();
+            mCommFragment = (CommFragment) fm.findFragmentByTag(COMM_FRAGMENT);
+            if (mCommFragment!=null) {
+                mBtSppCommManager = mCommFragment.getSppCommManager();
+            } else {
+
+                mBtSppCommManager = new BtSppCommManager(getApplicationContext());
+                mCommFragment = CommFragment.newInstance(mBtSppCommManager);
+
+                fm.beginTransaction()
+                        .add(mCommFragment, COMM_FRAGMENT)
+                        .commit();
+            }
 
             mainFragment = new MainFragment();
             mSelectBtFragment = null;
@@ -415,6 +435,39 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
 
     //*************************************************************
+    // Notification
+    //*************************************************************
+    public void createNotification() {
+        NotificationCompat.Builder mBuilder = (android.support.v7.app.NotificationCompat.Builder)
+                new NotificationCompat.Builder(this)
+                        .setContentTitle(getString(R.string.app_name))
+                        .setContentText(getString(R.string.touch_to_stop))
+                        .setSmallIcon(R.drawable.ic_logo_black);
+
+
+        Intent resultIntent = new Intent(this, MainActivity.class);
+        resultIntent.putExtra("requestCode", MUSIC_CANCEL_MODE);
+
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(MainActivity.class);
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent( 0, PendingIntent.FLAG_UPDATE_CURRENT );
+        mBuilder.setContentIntent(resultPendingIntent);
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        mNotificationManager.notify(0, mBuilder.build());
+
+    }
+
+    public void cancelNotification() {
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        mNotificationManager.cancel(0);
+
+    }
+
+
+    //*************************************************************
     // Implementation of RfListener
     //*************************************************************
     @Override
@@ -466,23 +519,29 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
         switch (event) {
             case CONNECTED:
-                setProgressBar(ActivityState.CONNECTED);
-                if (device==null) return;
-                if (mainFragment!=null) mainFragment.showConnected(device);
-                if (KbDevice.getDeviceType(device.getAddress())==KbDevice.SELECTBT) {
-                    if (!mBtSppCommManager.isSocketConnected()) {
+                if (device == null) return;
+                if (activationMode == MUSIC_CANCEL_MODE) {
+                    toggleBluetoothA2dp(new KbDevice(device.getName(),device));
+                } else {
+                    setProgressBar(ActivityState.CONNECTED);
 
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                connectBtSpp(device);
-                            }
-                        }, 250);
+                    createNotification();
+                    if (mainFragment != null) mainFragment.showConnected(device);
+                    if (KbDevice.getDeviceType(device.getAddress()) == KbDevice.SELECTBT) {
+                        if (!mBtSppCommManager.isSocketConnected()) {
+
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    connectBtSpp(device);
+                                }
+                            }, 250);
 
 
-                    } else {
-                        if (mainFragment != null) mainFragment.showSelectBtReady(device);
+                        } else {
+                            if (mainFragment != null) mainFragment.showSelectBtReady(device);
 
+                        }
                     }
                 }
                 break;
@@ -494,6 +553,7 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
                         if (mainFragment!=null) mainFragment.hideSelectBtReady();
                     }
                 }
+                cancelNotification();
                 setProgressBar(ActivityState.NOT_SCANNING);
 
                 if (device!=null)
@@ -512,14 +572,13 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
     }
 
-
-
     //*************************************************************
     // Implementation of BtConnectionInterface
     //*************************************************************
 
     @Override
     public void forgetBluetoothA2dp(KbDevice device) {
+        activationMode = COMMON_MODE;
         if (mBtA2dpConnectionManager!=null) {
             mBtA2dpConnectionManager.unbondBluetoothA2dp(device.mDevice);
         }
@@ -527,6 +586,7 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
 
     @Override
     public void toggleBluetoothA2dp(KbDevice device) {
+        activationMode = COMMON_MODE;
         if (mBtSppCommManager!=null) {
             if (mBtSppCommManager.isSocketConnected()) {
                 mBtSppCommManager.stopSocket();
@@ -545,7 +605,6 @@ public class MainActivity extends AppCompatActivity implements BtListenerManager
         if (mBtA2dpConnectionManager!=null) {
             mBtA2dpConnectionManager.refreshBluetoothA2dp();
         }
-
     }
 
     @Override
