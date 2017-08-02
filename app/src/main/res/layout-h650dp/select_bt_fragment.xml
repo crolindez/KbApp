@@ -4,22 +4,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true">
 
     <LinearLayout
         android:id="@+id/selectBt"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/windows"
-        android:orientation="vertical"
         android:padding="3dp"
-        android:visibility="visible">
+        android:visibility="visible"
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="42dp"
             android:orientation="horizontal"
-            android:layout_weight="0"
             android:weightSum="5">
 
             <TextView
@@ -48,217 +48,206 @@
 
         </LinearLayout>
 
-        <LinearLayout
+
+        <Button
+            android:id="@+id/fm_button"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="horizontal">
+            android:layout_height="42dp"
+            android:text="@string/FmButton" />
+
+        <RelativeLayout
+            android:id="@+id/layout_fm_button"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0"
+            android:animateLayoutChanges="true">
+
+            <TextView
+                android:id="@+id/fm_station"
+                android:layout_width="180dp"
+                android:layout_height="96dp"
+                android:gravity="center_vertical|center_horizontal"
+                android:textColor="@color/colorAccent"
+                android:textSize="24sp"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="40dp" />
 
             <Button
-                android:id="@+id/fm_button"
-                android:layout_width="42dp"
-                android:layout_height="match_parent"
-                android:text="@string/FmButton" />
-
-
-            <RelativeLayout
-                android:id="@+id/layout_fm_button"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0"
-                android:animateLayoutChanges="true">
-
-                <TextView
-                    android:id="@+id/fm_station"
-                    android:layout_width="180dp"
-                    android:layout_height="78dp"
-                    android:gravity="center_vertical|center_horizontal"
-                    android:text=""
-                    android:textColor="@color/colorAccent"
-                    android:textSize="24sp"
-                    android:layout_alignParentTop="true"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="2dp"/>
-
-                <Button
-                    android:id="@+id/button_up"
-                    style="@style/Widget.AppCompat.Button"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="@drawable/ic_arrow"
-                    android:layout_alignTop="@+id/fm_station"
-                    android:layout_toStartOf="@+id/fm_station" />
-
-                <Button
-                    android:id="@+id/button_down"
-                    style="@style/Widget.AppCompat.Button"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="@drawable/ic_arrow"
-                    android:rotation="180"
-                    android:layout_alignBottom="@+id/fm_station"
-                    android:layout_toStartOf="@+id/fm_station" />
-
-                <Button
-                    android:id="@+id/button_forced_mono"
-                    style="@style/Widget.AppCompat.Button"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:padding="5dp"
-                    android:drawablePadding="5dp"
-                    android:background="@drawable/ic_mono"
-                    android:layout_alignTop="@+id/fm_station"
-                    android:layout_toEndOf="@+id/fm_station" />
-
-                <Button
-                    android:id="@+id/button_sensitivity"
-                    style="@style/Widget.AppCompat.Button"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="@drawable/ic_sensitivity1"
-                    android:layout_alignBottom="@id/fm_station"
-                    android:layout_toEndOf="@+id/fm_station" />
-
-
-                <Button
-                    android:id="@+id/button_mem_fm_5"
-                    android:layout_width="90dp"
-                    android:layout_height="35dp"
-                    android:background="@drawable/ic_button_horizontal"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginBottom="5dp"
-                    android:layout_centerHorizontal="true" />
-
-                <Button
-                    android:id="@+id/button_mem_fm_2"
-                    android:layout_width="90dp"
-                    android:layout_height="35dp"
-                    android:background="@drawable/ic_button_horizontal"
-                    android:layout_above="@+id/button_mem_fm_5"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginBottom="5dp"/>
-
-                <Button
-                    android:id="@+id/button_mem_fm_4"
-                    android:layout_width="90dp"
-                    android:layout_height="35dp"
-                    android:background="@drawable/ic_button_horizontal"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginBottom="5dp"
-                    android:layout_toStartOf="@+id/button_mem_fm_5"
-                    android:layout_marginEnd="20dp" />
-
-                <Button
-                    android:id="@+id/button_mem_fm_1"
-                    android:layout_width="90dp"
-                    android:layout_height="35dp"
-                    android:background="@drawable/ic_button_horizontal"
-                    android:layout_above="@+id/button_mem_fm_4"
-                    android:layout_marginBottom="5dp"
-                    android:layout_toStartOf="@+id/button_mem_fm_2"
-                    android:layout_marginEnd="20dp"/>
-
-                <Button
-                    android:id="@+id/button_mem_fm_6"
-                    android:layout_width="90dp"
-                    android:layout_height="35dp"
-                    android:background="@drawable/ic_button_horizontal"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginBottom="5dp"
-                    android:layout_toEndOf="@+id/button_mem_fm_5"
-                    android:layout_marginStart="20dp" />
-
-                <Button
-                    android:id="@+id/button_mem_fm_3"
-                    android:layout_width="90dp"
-                    android:layout_height="35dp"
-                    android:background="@drawable/ic_button_horizontal"
-                    android:layout_above="@+id/button_mem_fm_6"
-                    android:layout_marginBottom="5dp"
-                    android:layout_toEndOf="@+id/button_mem_fm_2"
-                    android:layout_marginStart="20dp"/>
-
-            </RelativeLayout>
-
+                android:id="@+id/button_up"
+                style="@style/Widget.AppCompat.Button"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:background="@drawable/ic_arrow"
+                android:layout_alignTop="@+id/fm_station"
+                android:layout_toStartOf="@+id/fm_station" />
 
             <Button
-                android:id="@+id/dab_button"
-                android:layout_width="42dp"
-                android:layout_height="match_parent"
-                android:text="@string/DabButton" />
-
-            <RelativeLayout
-                android:id="@+id/layout_dab_button"
-                android:animateLayoutChanges="true"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0">
-                <ImageView
-                    tools:ignore="ContentDescription"
-                    android:id="@+id/dab_imageView"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    app:srcCompat="@drawable/ic_dab"
-                    android:layout_centerVertical="true"
-                    android:layout_centerHorizontal="true"/>
-
-            </RelativeLayout>
-
+                android:id="@+id/button_down"
+                style="@style/Widget.AppCompat.Button"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:background="@drawable/ic_arrow"
+                android:rotation="180"
+                android:layout_alignBottom="@id/fm_station"
+                android:layout_toStartOf="@id/fm_station" />
 
             <Button
-                android:id="@+id/bt_button"
-                android:layout_width="42dp"
-                android:layout_height="match_parent"
-                android:text="@string/BtButton" />
-
-            <RelativeLayout
-                android:id="@+id/layout_bt_button"
-                android:animateLayoutChanges="true"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0">
-
-                <ImageView
-                    tools:ignore="ContentDescription"
-                    android:id="@+id/bt_imageView"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    app:srcCompat="@drawable/animated_bluetooth"
-                    android:layout_centerVertical="true"
-                    android:layout_centerHorizontal="true"/>
-            </RelativeLayout>
+                android:id="@+id/button_forced_mono"
+                style="@style/Widget.AppCompat.Button"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:padding="5dp"
+                android:drawablePadding="5dp"
+                android:background="@drawable/ic_mono"
+                android:layout_alignTop="@+id/fm_station"
+                android:layout_toEndOf="@+id/fm_station" />
 
             <Button
-                android:id="@+id/monitor_button"
-                android:layout_width="42dp"
-                android:layout_height="match_parent"
-                android:text="@string/MonitorButton" />
+                android:id="@+id/button_sensitivity"
+                style="@style/Widget.AppCompat.Button"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:background="@drawable/ic_sensitivity1"
+                android:layout_alignBottom="@id/fm_station"
+                android:layout_toEndOf="@+id/fm_station" />
+
+            <Button
+                android:id="@+id/button_mem_fm_5"
+                android:layout_width="90dp"
+                android:layout_height="40dp"
+                android:background="@drawable/ic_button_horizontal"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="15dp"
+                android:layout_centerHorizontal="true" />
+
+            <Button
+                android:id="@+id/button_mem_fm_2"
+                android:layout_width="90dp"
+                android:layout_height="40dp"
+                android:background="@drawable/ic_button_horizontal"
+                android:layout_above="@+id/button_mem_fm_5"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="15dp"/>
+
+            <Button
+                android:id="@+id/button_mem_fm_4"
+                android:layout_width="90dp"
+                android:layout_height="40dp"
+                android:background="@drawable/ic_button_horizontal"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="15dp"
+                android:layout_toStartOf="@+id/button_mem_fm_5"
+                android:layout_marginEnd="20dp" />
+
+            <Button
+                android:id="@+id/button_mem_fm_1"
+                android:layout_width="90dp"
+                android:layout_height="40dp"
+                android:background="@drawable/ic_button_horizontal"
+                android:layout_above="@+id/button_mem_fm_4"
+                android:layout_marginBottom="15dp"
+                android:layout_toStartOf="@+id/button_mem_fm_2"
+                android:layout_marginEnd="20dp"/>
+
+            <Button
+                android:id="@+id/button_mem_fm_6"
+                android:layout_width="90dp"
+                android:layout_height="40dp"
+                android:background="@drawable/ic_button_horizontal"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="15dp"
+                android:layout_toEndOf="@+id/button_mem_fm_5"
+                android:layout_marginStart="20dp" />
+
+            <Button
+                android:id="@+id/button_mem_fm_3"
+                android:layout_width="90dp"
+                android:layout_height="40dp"
+                android:background="@drawable/ic_button_horizontal"
+                android:layout_above="@+id/button_mem_fm_6"
+                android:layout_marginBottom="15dp"
+                android:layout_toEndOf="@+id/button_mem_fm_2"
+                android:layout_marginStart="20dp"/>
+
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/dab_button"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:text="@string/DabButton" />
+
+        <RelativeLayout
+            android:id="@+id/layout_dab_button"
+            android:animateLayoutChanges="true"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0">
+            <ImageView
+                tools:ignore="ContentDescription"
+                android:id="@+id/dab_imageView"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                app:srcCompat="@drawable/ic_dab"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true" />
+
+        </RelativeLayout>
 
 
-            <ScrollView
-                android:id="@+id/scroll_monitor"
-                android:animateLayoutChanges="true"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0"
-                android:scrollbars="vertical">
+        <Button
+            android:id="@+id/bt_button"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:text="@string/BtButton" />
 
-                <TextView
-                    android:id="@+id/text_monitor"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:textColor="#fdfd00"
-                    android:textSize="18sp" />
-            </ScrollView>
-        </LinearLayout>
+        <RelativeLayout
+            android:id="@+id/layout_bt_button"
+            android:animateLayoutChanges="true"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0">
+
+            <ImageView
+                tools:ignore="ContentDescription"
+                android:id="@+id/bt_imageView"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                app:srcCompat="@drawable/animated_bluetooth"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true" />
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/monitor_button"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:text="@string/MonitorButton" />
+
+
+        <ScrollView
+            android:id="@+id/scroll_monitor"
+            android:animateLayoutChanges="true"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0"
+            android:scrollbars="vertical">
+
+            <TextView
+                android:id="@+id/text_monitor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:textColor="#fdfd00"
+                android:textSize="18sp" />
+        </ScrollView>
 
         <SeekBar
             android:id="@+id/volumeControl"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
-            android:layout_weight="0"
             android:max="15"
             android:visibility="invisible"/>
 
@@ -274,7 +263,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="20dp"
-        android:layout_marginBottom="60dp"
+        android:layout_marginBottom="80dp"
         android:visibility="invisible"/>
 
     <ScrollView
@@ -641,6 +630,5 @@
         </LinearLayout>
     </ScrollView>
 
-
-
 </RelativeLayout>
+

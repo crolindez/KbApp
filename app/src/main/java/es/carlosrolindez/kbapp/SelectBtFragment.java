@@ -33,7 +33,6 @@ import android.widget.TextView;
 
 // TODO Sometimes RDS arrives to late.
 // TODO sometimes ask ALL fails
-// TODO Quick access to switch OFF
 
 
 

@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="42dp"
             android:orientation="horizontal"
-            android:weightSum="5">
+            android:weightSum="6">
 
             <TextView
                 android:id="@+id/selectBtName"
@@ -41,10 +41,11 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginEnd="15dp"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:elevation="12dp"
                 android:text="@string/OnSwitch"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:textSize="12sp" />
 
         </LinearLayout>
 
@@ -71,7 +72,7 @@
                 android:textSize="24sp"
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="40dp" />
+                android:layout_marginTop="10dp" />
 
             <Button
                 android:id="@+id/button_up"
